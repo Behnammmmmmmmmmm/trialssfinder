@@ -131,11 +131,11 @@ DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="noreply@trialssfinder
 # Logging Configuration
 from .logging_config import LOGGING
 
-# Sentry Configuration - Enhanced for Production
-SENTRY_DSN = config("SENTRY_DSN")
+# GlitchTip Configuration - Enhanced for Production
+GLITCHTIP_DSN = config("GLITCHTIP_DSN")
 
 def before_send(event, hint):
-    """Filter sensitive data before sending to Sentry"""
+    """Filter sensitive data before sending to GlitchTip"""
     # Filter out sensitive data
     if 'extra' in event:
         sensitive_keys = ['password', 'token', 'secret', 'api_key', 'stripe']
@@ -158,7 +158,7 @@ def before_send(event, hint):
     return event
 
 sentry_sdk.init(
-    dsn=SENTRY_DSN,
+    dsn=GLITCHTIP_DSN,
     integrations=[
         DjangoIntegration(
             transaction_style='function_name',
@@ -205,7 +205,7 @@ sentry_sdk.init(
     ],
 )
 
-# Set custom Sentry tags
+# Set custom GlitchTip tags
 sentry_sdk.set_tag("server_name", config("SERVER_NAME", default="production"))
 sentry_sdk.set_tag("deployment", config("DEPLOYMENT_ENV", default="production"))
 
@@ -271,7 +271,7 @@ CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 CSP_IMG_SRC = ("'self'", "data:", "https:")
 CSP_CONNECT_SRC = ("'self'", "https://api.stripe.com", "https://sentry.io")
 
-# Update logging to include Sentry handler
+# Update logging to include GlitchTip handler
 LOGGING['handlers']['sentry'] = {
     'level': 'ERROR',
     'class': 'sentry_sdk.integrations.logging.EventHandler',
