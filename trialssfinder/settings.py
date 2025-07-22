@@ -431,14 +431,14 @@ LOGGING = {
     },
 }
 
-# Sentry Configuration
-SENTRY_DSN = config("SENTRY_DSN", default="")
+# GlitchTip Configuration (replacing Sentry)
+GLITCHTIP_DSN = config("GLITCHTIP_DSN", default="")
 VERSION = config("VERSION", default="1.0.0")
 SERVER_NAME = config("SERVER_NAME", default="development")
 DEPLOYMENT_ENV = config("DEPLOYMENT_ENV", default="development")
 
-# Initialize Sentry if DSN is provided
-if SENTRY_DSN:
+# Initialize GlitchTip if DSN is provided
+if GLITCHTIP_DSN:
     try:
         import sentry_sdk
         from sentry_sdk.integrations.django import DjangoIntegration
@@ -447,7 +447,7 @@ if SENTRY_DSN:
         from sentry_sdk.integrations.logging import LoggingIntegration
 
         sentry_sdk.init(
-            dsn=SENTRY_DSN,
+            dsn=GLITCHTIP_DSN,
             integrations=[
                 DjangoIntegration(
                     transaction_style='function_name',
@@ -470,11 +470,11 @@ if SENTRY_DSN:
             max_breadcrumbs=50,
             debug=False,
         )
-        print(f"Sentry initialized for environment: {DEPLOYMENT_ENV}")
+        print(f"GlitchTip initialized for environment: {DEPLOYMENT_ENV}")
     except ImportError:
         print("Sentry SDK not installed. Run: pip install sentry-sdk")
     except Exception as e:
-        print(f"Failed to initialize Sentry: {str(e)}")
+        print(f"Failed to initialize GlitchTip: {str(e)}")
 
 # Additional performance settings
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
