@@ -125,3 +125,4 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.ERROR(f'✗ Unexpected error: {e}')
             )
+            
