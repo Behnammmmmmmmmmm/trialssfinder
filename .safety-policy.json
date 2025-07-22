@@ -1,0 +1,27 @@
+{
+    "security": {
+        "continue-on-vulnerability-error": false,
+        "ignore-vulnerabilities": {
+            "44715": {
+                "reason": "Development dependency only",
+                "expires": "2025-12-31"
+            },
+            "44716": {
+                "reason": "Development dependency only",
+                "expires": "2025-12-31"
+            },
+            "44717": {
+                "reason": "Development dependency only",
+                "expires": "2025-12-31"
+            },
+            "51457": {
+                "reason": "Development dependency only",
+                "expires": "2025-12-31"
+            },
+            "70612": {
+                "reason": "Development dependency only",
+                "expires": "2025-12-31"
+            }
+        }
+    }
+}

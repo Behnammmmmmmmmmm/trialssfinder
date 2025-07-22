@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunktrialssfinder=self.webpackChunktrialssfinder||[]).push([[301],{9301:(e,s,i)=>{i.r(s),i.d(s,{AboutPage:()=>a,default:()=>l});i(5043);var r=i(579);const a=()=>(0,r.jsxs)("div",{children:[(0,r.jsx)("h1",{children:"About Us"}),(0,r.jsx)("p",{children:"Information about the company will be displayed here."})]}),l=a}}]);
+//# sourceMappingURL=301.422f6b01.chunk.js.map

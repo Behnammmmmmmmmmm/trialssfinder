@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Subscription Confirmed</h2>
+<p>Your subscription for "{{ trial_title }}" is active.</p>
+<p>Amount: ${{ amount }}</p>
+<p>Next billing: {{ next_billing_date }}</p>
+<a href="{{ subscription_url }}" class="button">Manage Subscription</a>
+{% endblock %}

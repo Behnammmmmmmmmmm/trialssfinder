@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Invoice #{{ invoice_number }}</h2>
+<p>Date: {{ invoice_date }}</p>
+<p>Amount: ${{ amount }}</p>
+<table style="width: 100%; border-collapse: collapse;">
+    <tr>
+        <td>{{ trial_title }}</td>
+        <td style="text-align: right;">${{ amount }}</td>
+    </tr>
+</table>
+<p>Total: ${{ amount }}</p>
+<a href="{{ invoice_url }}" class="button">Download PDF</a>
+{% endblock %}

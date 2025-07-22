@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunktrialssfinder=self.webpackChunktrialssfinder||[]).push([[110],{9110:(e,s,i)=>{i.r(s),i.d(s,{FAQPage:()=>r,default:()=>d});i(5043);var l=i(579);const r=()=>(0,l.jsxs)("div",{children:[(0,l.jsx)("h1",{children:"FAQ"}),(0,l.jsx)("p",{children:"Frequently asked questions will be displayed here."})]}),d=r}}]);
+//# sourceMappingURL=110.a91b7102.chunk.js.map

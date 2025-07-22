@@ -1,0 +1,42 @@
+{
+  "cookies": {
+    "title": "Cookie Preferences",
+    "description": "We use cookies to improve your experience. Please select your preferences.",
+    "necessary": "Necessary (Required)",
+    "functional": "Functional",
+    "analytics": "Analytics",
+    "marketing": "Marketing",
+    "acceptSelected": "Accept Selected",
+    "acceptAll": "Accept All"
+  },
+  "privacy": {
+    "title": "Privacy Dashboard",
+    "yourConsents": "Your Consents",
+    "yourRights": "Your Rights",
+    "exportData": "Export My Data",
+    "deleteAccount": "Delete My Account",
+    "deleteConfirm": "Are you sure? This action cannot be undone.",
+    "deletionRequested": "Deletion request submitted. Check your email.",
+    "exportRequested": "Export request submitted. You'll receive an email when ready."
+  },
+  "nav": {
+    "home": "Home",
+    "login": "Login", 
+    "register": "Register",
+    "logout": "Logout",
+    "dashboard": "Dashboard"
+  },
+  "welcome": "Welcome",
+  "login": {
+    "title": "Welcome Back",
+    "subtitle": "Sign in to continue",
+    "submit": "Sign In"
+  },
+  "home": {
+    "hero": {
+      "title": "Find Your Perfect Trial"
+    },
+    "featured": "Featured Free Trials",
+    "latest": "Latest Free Trials"
+  }
+}

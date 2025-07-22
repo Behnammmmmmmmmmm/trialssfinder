@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>New Trial Available!</h2>
+<p>A new trial in {{ industry }} is now available:</p>
+<h3>{{ trial_title }}</h3>
+<p>{{ trial_description|truncatewords:30 }}</p>
+<a href="{{ trial_url }}" class="button">View Trial</a>
+{% endblock %}

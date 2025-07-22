@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunktrialssfinder=self.webpackChunktrialssfinder||[]).push([[150],{3150:(e,i,s)=>{s.r(i),s.d(i,{PrivacyPage:()=>l,default:()=>c});s(5043);var r=s(579);const l=()=>(0,r.jsxs)("div",{children:[(0,r.jsx)("h1",{children:"Privacy Policy"}),(0,r.jsx)("p",{children:"Privacy policy will be displayed here."})]}),c=l}}]);
+//# sourceMappingURL=150.a02e2dff.chunk.js.map

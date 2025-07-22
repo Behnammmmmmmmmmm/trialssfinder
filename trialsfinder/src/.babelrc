@@ -1,0 +1,47 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": {
+        "browsers": [">0.25%", "not dead"],
+        "esmodules": true
+      },
+      "bugfixes": true,
+      "modules": false,
+      "useBuiltIns": "usage",
+      "corejs": 3
+    }],
+    ["@babel/preset-react", {
+      "runtime": "automatic"
+    }],
+    "@babel/preset-typescript"
+  ],
+  "plugins": [
+    "@babel/plugin-syntax-dynamic-import",
+    ["@babel/plugin-transform-runtime", {
+      "regenerator": false
+    }],
+    ["babel-plugin-transform-imports", {
+      "lodash": {
+        "transform": "lodash/${member}",
+        "preventFullImport": true
+      },
+      "date-fns": {
+        "transform": "date-fns/${member}",
+        "preventFullImport": true
+      }
+    }]
+  ],
+  "env": {
+    "production": {
+      "plugins": [
+        ["babel-plugin-transform-react-remove-prop-types", {
+          "mode": "remove",
+          "removeImport": true
+        }],
+        ["babel-plugin-transform-remove-console", {
+          "exclude": ["error", "warn"]
+        }]
+      ]
+    }
+  }
+}s

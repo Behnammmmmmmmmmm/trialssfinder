@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunktrialssfinder=self.webpackChunktrialssfinder||[]).push([[307],{2307:(e,s,r)=>{r.r(s),r.d(s,{TermsPage:()=>d,default:()=>l});r(5043);var i=r(579);const d=()=>(0,i.jsxs)("div",{children:[(0,i.jsx)("h1",{children:"Terms of Use"}),(0,i.jsx)("p",{children:"Terms and conditions will be displayed here."})]}),l=d}}]);
+//# sourceMappingURL=307.2bfb4f66.chunk.js.map

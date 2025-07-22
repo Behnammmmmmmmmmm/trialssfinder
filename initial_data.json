@@ -1,0 +1,15 @@
+{
+  "model": "trials.industry",
+  "fields": [
+    {"name": "Technology"},
+    {"name": "Healthcare"},
+    {"name": "Finance"},
+    {"name": "Education"},
+    {"name": "Marketing"},
+    {"name": "E-commerce"},
+    {"name": "Entertainment"},
+    {"name": "Travel"},
+    {"name": "Real Estate"},
+    {"name": "Automotive"}
+  ]
+}

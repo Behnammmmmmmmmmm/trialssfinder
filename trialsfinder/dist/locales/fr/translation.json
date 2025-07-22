@@ -1,0 +1,22 @@
+{
+  "cookies": {
+    "title": "Préférences de Cookies",
+    "description": "Nous utilisons des cookies pour améliorer votre expérience. Veuillez sélectionner vos préférences.",
+    "necessary": "Nécessaires (Requis)",
+    "functional": "Fonctionnels",
+    "analytics": "Analytiques",
+    "marketing": "Marketing",
+    "acceptSelected": "Accepter la Sélection",
+    "acceptAll": "Accepter Tout"
+  },
+  "privacy": {
+    "title": "Tableau de Bord Confidentialité",
+    "yourConsents": "Vos Consentements",
+    "yourRights": "Vos Droits",
+    "exportData": "Exporter Mes Données",
+    "deleteAccount": "Supprimer Mon Compte",
+    "deleteConfirm": "Êtes-vous sûr? Cette action ne peut pas être annulée.",
+    "deletionRequested": "Demande de suppression soumise. Vérifiez votre email.",
+    "exportRequested": "Demande d'exportation soumise. Vous recevrez un email quand ce sera prêt."
+  }
+}

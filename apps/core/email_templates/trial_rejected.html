@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Trial Update</h2>
+<p>Your trial "{{ trial_title }}" needs revisions.</p>
+<p>Reason: {{ reason }}</p>
+<a href="{{ edit_url }}" class="button">Edit Trial</a>
+{% endblock %}

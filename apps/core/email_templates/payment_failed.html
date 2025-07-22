@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Payment Failed</h2>
+<p>We couldn't process your payment for "{{ trial_title }}".</p>
+<p>Please update your payment method.</p>
+<a href="{{ payment_url }}" class="button">Update Payment</a>
+{% endblock %}

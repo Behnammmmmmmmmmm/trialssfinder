@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Your Weekly Update</h2>
+<p>Here's what's new in your industries:</p>
+<ul>
+{% for trial in new_trials %}
+    <li><a href="{{ trial.url }}">{{ trial.title }}</a> - {{ trial.industry }}</li>
+{% endfor %}
+</ul>
+<a href="{{ site_url }}/search" class="button">Explore More</a>
+{% endblock %}

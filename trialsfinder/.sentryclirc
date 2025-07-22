@@ -1,0 +1,7 @@
+[defaults]
+url = https://sentry.io/
+org = eas-mc
+project = javascript-react
+
+[auth]
+token = YOUR_SENTRY_AUTH_TOKEN

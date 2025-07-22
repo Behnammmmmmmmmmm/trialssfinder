@@ -1,0 +1,72 @@
+/* Absolute minimal critical CSS - only what's needed for initial render */
+:root {
+  --primary: #003d82;
+  --text-primary: #212529;
+  --light: #f8f9fa;
+  --border: #e5e7eb;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text-primary);
+  background: var(--light);
+  line-height: 1.5;
+}
+
+/* Minimal spinner for loading states */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 61, 130, 0.1);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Header styles for initial render */
+.header {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 64px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Text utilities for initial render */
+.text-center { text-align: center; }
+.text-primary { color: var(--primary); }
+.text-muted { color: #6b7280; }
+
+/* Hide elements until JS loads */
+.no-js-hide { display: none; }
+
+/* Prevent layout shift */
+img, video { max-width: 100%; height: auto; }
+button, input { font-family: inherit; }
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+}

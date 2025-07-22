@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Admin Report: {{ report_type }}</h2>
+<p>Generated: {{ generated_at }}</p>
+<p>Your requested report is attached.</p>
+<p>Summary:</p>
+<ul>
+    <li>Total Records: {{ total_records }}</li>
+    <li>Period: {{ period }}</li>
+</ul>
+{% endblock %}

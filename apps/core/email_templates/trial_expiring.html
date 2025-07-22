@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Trial Ending Soon</h2>
+<p>Your trial "{{ trial_title }}" expires in {{ days_left }} days.</p>
+<p>Don't lose access to your data.</p>
+<a href="{{ trial_url }}" class="button">Extend Trial</a>
+{% endblock %}
