@@ -2,6 +2,7 @@ import os
 import sys
 from datetime import timedelta
 from pathlib import Path
+
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -66,7 +67,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             BASE_DIR / 'templates',
-            BASE_DIR / 'trialsfinder' / 'build',  # React build directory
+            BASE_DIR / 'trialsfinder' / 'dist',  # React build directory
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -133,18 +134,14 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Add static directories
 STATICFILES_DIRS = []
 
-# React build directory
-react_build_dir = BASE_DIR / 'trialsfinder' / 'build'
+# React build directories
+react_build_dir = BASE_DIR / 'trialsfinder' / 'dist'
 if react_build_dir.exists():
     STATICFILES_DIRS.append(react_build_dir)
     # Also add the static subdirectory from React build
     react_build_static = react_build_dir / 'static'
     if react_build_static.exists():
         STATICFILES_DIRS.append(react_build_static)
-
-# Add templates directory
-templates_dir = BASE_DIR / 'templates'
-templates_dir.mkdir(exist_ok=True)
 
 # WhiteNoise configuration
 WHITENOISE_USE_FINDERS = True
@@ -163,10 +160,10 @@ AUTH_USER_MODEL = 'authentication.User'
 
 # REST Framework settings
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    ],
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
@@ -176,14 +173,11 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/hour',
-        'user': '1000/hour',
+        'user': '1000/hour'
     },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
-    'EXCEPTION_HANDLER': 'apps.core.exceptions.custom_exception_handler',
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-    ],
+    'EXCEPTION_HANDLER': 'apps.core.exceptions.custom_exception_handler'
 }
 
 # Simple JWT
@@ -231,14 +225,14 @@ CORS_ALLOW_HEADERS = [
     'cache-control',
 ]
 
-# CSRF configuration  
+# CSRF configuration
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://localhost:8080",
-    "http://127.0.0.1:8080",
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://localhost:8080',
+    'http://127.0.0.1:8080',
 ]
 
 # Security headers
@@ -332,12 +326,12 @@ LOGGING = {
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse',
-        }
+        },
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'verbose',
         },
     },
     'root': {
