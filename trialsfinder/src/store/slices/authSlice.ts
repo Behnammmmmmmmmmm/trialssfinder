@@ -1,9 +1,7 @@
 import { StateCreator } from 'zustand';
-import * as Sentry from '@sentry/react';
 import { User } from '../../types';
 import { authAPI } from '../../api/auth';
 import { AppState } from '../index';
-import { setUser as setSentryUser, captureException } from '../../utils/sentry';
 
 export interface AuthState {
   user: User | null;
@@ -25,34 +23,14 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
   loading: true,
   error: null,
   mockMode: false,
-
-  setUser: (user) => {
-    set({ user });
-    // Update Sentry user context
-    if (user) {
-      setSentryUser({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      });
-    } else {
-      setSentryUser(null);
-    }
-  },
   
+  setUser: (user) => set({ user }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
   setMockMode: (mockMode) => set({ mockMode }),
-
+  
   login: async (username, password) => {
     set({ loading: true, error: null });
-    
-    const transaction = Sentry.startTransaction({
-      name: 'auth.login',
-      op: 'auth',
-    });
-    
-    Sentry.getCurrentHub().configureScope(scope => scope.setSpan(transaction));
     
     try {
       const response = await authAPI.login({ username, password });
@@ -62,18 +40,7 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
       localStorage.setItem('refresh_token', tokens.refresh);
       
       set({ user, loading: false, mockMode: false });
-      
-      // Set Sentry user context
-      setSentryUser({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      });
-      
-      transaction.setStatus('ok');
     } catch (error: any) {
-      transaction.setStatus('internal_error');
-      
       // In development, allow mock login
       if (process.env.NODE_ENV === 'development' && error.code === 'ERR_NETWORK') {
         console.warn('Backend not available, using mock login');
@@ -82,32 +49,19 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
           username: username,
           email: `${username}@example.com`,
           user_type: 'user',
-          email_verified: true
+          email_verified: true,
         };
         set({ user: mockUser, loading: false, mockMode: true });
         localStorage.setItem('mock_user', JSON.stringify(mockUser));
       } else {
-        captureException(error, {
-          username,
-          tags: { feature: 'auth', action: 'login' },
-        });
         set({ error: error.message || 'Login failed', loading: false });
         throw error;
       }
-    } finally {
-      transaction.finish();
     }
   },
-
+  
   register: async (data) => {
     set({ loading: true, error: null });
-    
-    const transaction = Sentry.startTransaction({
-      name: 'auth.register',
-      op: 'auth',
-    });
-    
-    Sentry.getCurrentHub().configureScope(scope => scope.setSpan(transaction));
     
     try {
       const response = await authAPI.register(data);
@@ -121,18 +75,7 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
       }
       
       set({ user, loading: false, mockMode: false });
-      
-      // Set Sentry user context
-      setSentryUser({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      });
-      
-      transaction.setStatus('ok');
     } catch (error: any) {
-      transaction.setStatus('internal_error');
-      
       // In development, allow mock registration
       if (process.env.NODE_ENV === 'development' && error.code === 'ERR_NETWORK') {
         console.warn('Backend not available, using mock registration');
@@ -140,34 +83,26 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
           id: Date.now(),
           username: data.username,
           email: data.email,
-          user_type: data.user_type || 'user',
-          email_verified: false
+          user_type: data.user_type,
+          email_verified: false,
         };
         set({ user: mockUser, loading: false, mockMode: true });
         localStorage.setItem('mock_user', JSON.stringify(mockUser));
       } else {
-        captureException(error, {
-          username: data.username,
-          user_type: data.user_type,
-          tags: { feature: 'auth', action: 'register' },
-        });
         set({ error: error.message || 'Registration failed', loading: false });
         throw error;
       }
-    } finally {
-      transaction.finish();
     }
   },
-
+  
   logout: () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('verification_token');
     localStorage.removeItem('mock_user');
     set({ user: null, loading: false, error: null, mockMode: false });
-    setSentryUser(null);
   },
-
+  
   loadUser: async () => {
     const token = localStorage.getItem('access_token');
     const mockUser = localStorage.getItem('mock_user');
@@ -177,11 +112,6 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
       try {
         const user = JSON.parse(mockUser);
         set({ user, loading: false, mockMode: true });
-        setSentryUser({
-          id: user.id,
-          username: user.username,
-          email: user.email,
-        });
         return;
       } catch (e) {
         localStorage.removeItem('mock_user');
@@ -192,28 +122,19 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
       set({ user: null, loading: false });
       return;
     }
-
+    
     set({ loading: true });
+    
     try {
       const response = await authAPI.getMe();
       const user = response.data;
       set({ user, loading: false, mockMode: false });
-      setSentryUser({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-      });
     } catch (error: any) {
       // In development, check if we have a mock user
       if (process.env.NODE_ENV === 'development' && error.code === 'ERR_NETWORK' && mockUser) {
         try {
           const user = JSON.parse(mockUser);
           set({ user, loading: false, mockMode: true });
-          setSentryUser({
-            id: user.id,
-            username: user.username,
-            email: user.email,
-          });
           return;
         } catch (e) {
           // Invalid mock user
@@ -224,7 +145,6 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('mock_user');
       set({ user: null, loading: false });
-      setSentryUser(null);
     }
   },
 });
