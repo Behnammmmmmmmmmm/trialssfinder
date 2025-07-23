@@ -23,8 +23,12 @@ module.exports = (env, argv) => {
     },
     output: {
       path: path.resolve(__dirname, 'build'),
-      filename: isProduction ? 'static/js/[name].[contenthash:8].js' : 'static/js/[name].js',
-      chunkFilename: isProduction ? 'static/js/[name].[contenthash:8].chunk.js' : 'static/js/[name].chunk.js',
+      filename: isProduction 
+        ? 'static/js/[name].[contenthash:8].js' 
+        : 'static/js/[name].js',
+      chunkFilename: isProduction
+        ? 'static/js/[name].[contenthash:8].chunk.js'
+        : 'static/js/[name].chunk.js',
       clean: true,
       publicPath: '/',
       assetModuleFilename: 'static/assets/[name].[hash:8][ext]',
@@ -131,7 +135,7 @@ module.exports = (env, argv) => {
           // React/Preact bundle
           framework: {
             name: 'framework',
-            test: /[\\/]node_modules[\\/](react|react-dom|preact|scheduler|object-assign)/,
+            test: /[\\/]node_modules[\\/](react|react-dom|preact|scheduler|object-assign)[\\/]/,
             priority: 50,
             chunks: 'all',
             enforce: true,
@@ -139,7 +143,7 @@ module.exports = (env, argv) => {
           // React Router and state management
           'react-router': {
             name: 'react-router',
-            test: /[\\/]node_modules[\\/](react-router|react-router-dom|history)/,
+            test: /[\\/]node_modules[\\/](react-router|react-router-dom|history)[\\/]/,
             priority: 40,
             chunks: 'all',
             enforce: true,
@@ -147,7 +151,7 @@ module.exports = (env, argv) => {
           // State management
           state: {
             name: 'state',
-            test: /[\\/]node_modules[\\/](zustand|immer)/,
+            test: /[\\/]node_modules[\\/](zustand|immer)[\\/]/,
             priority: 40,
             chunks: 'all',
             enforce: true,
@@ -203,40 +207,27 @@ module.exports = (env, argv) => {
               configFile: path.resolve(__dirname, 'babel.config.js'),
               babelrc: false,
               presets: [
-                [
-                  '@babel/preset-env',
-                  {
-                    targets: {
-                      browsers: ['>0.25%', 'not dead'],
-                    },
-                    modules: false,
-                    useBuiltIns: false,
-                    // Exclude transforms for modern browsers
-                    exclude: ['transform-typeof-symbol'],
-                  },
-                ],
-                [
-                  '@babel/preset-react',
-                  {
-                    runtime: 'automatic',
-                    development: isDevelopment,
-                  },
-                ],
+                ['@babel/preset-env', {
+                  targets: '> 0.25%, not dead',
+                  modules: false,
+                  useBuiltIns: false,
+                  // Exclude transforms for modern browsers
+                  exclude: ['transform-typeof-symbol'],
+                }],
+                ['@babel/preset-react', {
+                  runtime: 'automatic',
+                  development: isDevelopment,
+                }],
                 '@babel/preset-typescript',
               ],
               plugins: [
                 '@babel/plugin-syntax-dynamic-import',
-                ...(isProduction
-                  ? [
-                      [
-                        'babel-plugin-transform-react-remove-prop-types',
-                        {
-                          mode: 'remove',
-                          removeImport: true,
-                        },
-                      ],
-                    ]
-                  : []),
+                ...(isProduction ? [
+                  ['babel-plugin-transform-react-remove-prop-types', {
+                    mode: 'remove',
+                    removeImport: true,
+                  }],
+                ] : []),
               ],
             },
           },
@@ -290,7 +281,7 @@ module.exports = (env, argv) => {
         'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
       }),
       new HtmlWebpackPlugin({
-        template: 'public/index.html',
+        template: './public/index.html',
         inject: 'body',
         scriptLoading: 'defer',
         minify: isProduction
@@ -309,8 +300,12 @@ module.exports = (env, argv) => {
           : false,
       }),
       new MiniCssExtractPlugin({
-        filename: isProduction ? 'static/css/[name].[contenthash:8].css' : 'static/css/[name].css',
-        chunkFilename: isProduction ? 'static/css/[name].[contenthash:8].chunk.css' : 'static/css/[name].chunk.css',
+        filename: isProduction
+          ? 'static/css/[name].[contenthash:8].css'
+          : 'static/css/[name].css',
+        chunkFilename: isProduction
+          ? 'static/css/[name].[contenthash:8].chunk.css'
+          : 'static/css/[name].chunk.css',
       }),
       new CopyPlugin({
         patterns: [
@@ -352,7 +347,7 @@ module.exports = (env, argv) => {
               exclude: [/\.map$/, /manifest$/, /\.js$/],
               runtimeCaching: [
                 {
-                  urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
+                  urlPattern: /^https:\/\/fonts\.googleapis|gstatic\.com/,
                   handler: 'CacheFirst',
                   options: {
                     cacheName: 'google-fonts',
