@@ -1,55 +1,30 @@
-module.exports = {
-  plugins: [
-    require('postcss-import'),
-    require('postcss-preset-env')({
-      stage: 1,
-      features: {
-        'custom-properties': true,
-        'custom-media-queries': true,
-        'nesting-rules': true,
-        'focus-visible-pseudo-class': true,
-        'prefers-color-scheme-query': true,
-      },
-      autoprefixer: {
-        grid: 'autoplace'
-      }
-    }),
-    require('autoprefixer'),
-    // PurgeCSS to remove unused CSS in production
-    ...(process.env.NODE_ENV === 'production' ? [
-      require('@fullhuman/postcss-purgecss')({
-        content: [
-          './src/**/*.{js,jsx,ts,tsx}',
-          './public/index.html',
-        ],
-        defaultExtractor: content => {
-          // Capture as liberally as possible, including things like `h-(screen-1.5)`
-          const broadMatches = content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [];
-          const innerMatches = content.match(/[^<>"'`\s.()]*[^<>"'`\s.():]/g) || [];
-          return broadMatches.concat(innerMatches);
-        },
-        safelist: {
-          standard: [/^btn/, /^card/, /^form/, /^badge/, /^alert/, /^spinner/, /^skeleton/],
-          deep: [/data-/],
-          greedy: [/^hover/, /^focus/]
-        },
-      })
-    ] : []),
-    // CSS Nano - Minification for production only
-    ...(process.env.NODE_ENV === 'production' ? [
-      require('cssnano')({
-        preset: ['default', {
-          discardComments: {
-            removeAll: true,
-          },
-          normalizeWhitespace: true,
-          colormin: true,
-          convertValues: {
-            precision: 2
-          },
-          calc: false,
-        }],
-      })
-    ] : []),
-  ],
-};
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react",
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "types": ["node", "jest", "@testing-library/jest-dom"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "build"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
