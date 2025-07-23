@@ -1,47 +1,28 @@
-{
-  "presets": [
-    ["@babel/preset-env", {
-      "targets": {
-        "browsers": [">0.25%", "not dead"],
-        "esmodules": true
+module.exports = {
+  presets: [
+    ['@babel/preset-env', {
+      targets: {
+        browsers: ['>0.25%', 'not dead']
       },
-      "bugfixes": true,
-      "modules": false,
-      "useBuiltIns": "usage",
-      "corejs": 3
+      modules: false,
+      useBuiltIns: false
     }],
-    ["@babel/preset-react", {
-      "runtime": "automatic"
+    ['@babel/preset-react', {
+      runtime: 'automatic'
     }],
-    "@babel/preset-typescript"
+    '@babel/preset-typescript'
   ],
-  "plugins": [
-    "@babel/plugin-syntax-dynamic-import",
-    ["@babel/plugin-transform-runtime", {
-      "regenerator": false
-    }],
-    ["babel-plugin-transform-imports", {
-      "lodash": {
-        "transform": "lodash/${member}",
-        "preventFullImport": true
-      },
-      "date-fns": {
-        "transform": "date-fns/${member}",
-        "preventFullImport": true
-      }
-    }]
+  plugins: [
+    '@babel/plugin-syntax-dynamic-import'
   ],
-  "env": {
-    "production": {
-      "plugins": [
-        ["babel-plugin-transform-react-remove-prop-types", {
-          "mode": "remove",
-          "removeImport": true
-        }],
-        ["babel-plugin-transform-remove-console", {
-          "exclude": ["error", "warn"]
+  env: {
+    production: {
+      plugins: [
+        ['babel-plugin-transform-react-remove-prop-types', {
+          mode: 'remove',
+          removeImport: true
         }]
       ]
     }
   }
-}s
+};
