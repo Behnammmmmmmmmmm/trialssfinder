@@ -27,7 +27,7 @@ module.exports = (env, argv) => {
       chunkFilename: isProduction ? 'js/[name].[contenthash:8].chunk.js' : 'js/[name].chunk.js',
       clean: true,
       publicPath: '/',
-      assetModuleFilename: 'assets/[name].[hash:8][ext]',
+      assetModuleFilename: 'assets/[name].[hash:8].[ext]',
     },
     mode: isProduction ? 'production' : 'development',
     devtool: isProduction ? 'hidden-source-map' : 'cheap-module-source-map',
@@ -36,22 +36,22 @@ module.exports = (env, argv) => {
       alias: {
         '@': path.resolve(__dirname, 'src'),
         // Use preact in production for smaller bundle
-        ...(isProduction ? {
+        ...(isProduction && {
           'react': 'preact/compat',
           'react-dom': 'preact/compat',
           'react/jsx-runtime': 'preact/jsx-runtime'
-        } : {}),
+        }),
       },
       // Handle Node.js polyfills
       fallback: {
-        stream: false,
-        http: false,
-        https: false,
-        zlib: false,
-        url: false,
-        util: false,
-        buffer: false,
-        process: false,
+        'stream': false,
+        'http': false,
+        'https': false,
+        'zlib': false,
+        'url': false,
+        'util': false,
+        'buffer': false,
+        'process': false,
       },
     },
     optimization: {
@@ -133,8 +133,24 @@ module.exports = (env, argv) => {
           // React/Preact bundle
           framework: {
             name: 'framework',
-            test: /[\\/]node_modules[\\/](react|react-dom|preact|scheduler|object-assign)/,
+            test: /[\\/]node_modules[\\/](react|react-dom|preact|scheduler|object-assign)[\\/]/,
             priority: 50,
+            chunks: 'all',
+            enforce: true,
+          },
+          // React Router and state management
+          'react-router': {
+            name: 'react-router',
+            test: /[\\/]node_modules[\\/](react-router|react-router-dom|history)[\\/]/,
+            priority: 40,
+            chunks: 'all',
+            enforce: true,
+          },
+          // State management
+          state: {
+            name: 'state',
+            test: /[\\/]node_modules[\\/](zustand|immer)[\\/]/,
+            priority: 40,
             chunks: 'all',
             enforce: true,
           },
@@ -152,7 +168,7 @@ module.exports = (env, argv) => {
               }
               
               // Split large packages into separate chunks
-              const largePackages = ['axios', 'date-fns', 'i18next', 'react-router-dom', 'zustand'];
+              const largePackages = ['axios', 'date-fns', 'i18next'];
               if (largePackages.includes(packageName)) {
                 return `vendor-${packageName.replace('@', '')}`;
               }
@@ -176,6 +192,7 @@ module.exports = (env, argv) => {
     },
     module: {
       rules: [
+        // JavaScript/TypeScript
         {
           test: /\.(ts|tsx|js|jsx|mjs)$/,
           exclude: /node_modules/,
@@ -189,7 +206,9 @@ module.exports = (env, argv) => {
               babelrc: false,
               presets: [
                 ['@babel/preset-env', {
-                  targets: { browsers: ['>0.25%', 'not dead'] },
+                  targets: {
+                    browsers: '>0.25%, not dead',
+                  },
                   modules: false,
                   useBuiltIns: false,
                   // Exclude transforms for modern browsers
@@ -213,6 +232,7 @@ module.exports = (env, argv) => {
             },
           },
         },
+        // CSS
         {
           test: /\.css$/,
           use: [
@@ -233,6 +253,7 @@ module.exports = (env, argv) => {
             },
           ],
         },
+        // Images
         {
           test: /\.(png|svg|jpg|jpeg|gif|webp)$/i,
           type: 'asset',
@@ -245,6 +266,7 @@ module.exports = (env, argv) => {
             filename: 'images/[name].[hash:8][ext]',
           },
         },
+        // Fonts
         {
           test: /\.(woff|woff2|eot|ttf|otf)$/i,
           type: 'asset/resource',
@@ -259,7 +281,7 @@ module.exports = (env, argv) => {
         'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
       }),
       new HtmlWebpackPlugin({
-        template: './public/index.html',
+        template: 'public/index.html',
         inject: 'body',
         scriptLoading: 'defer',
         minify: isProduction ? {
@@ -310,7 +332,7 @@ module.exports = (env, argv) => {
           exclude: [/\.map$/, /manifest$/, /\.js$/],
           runtimeCaching: [
             {
-              urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
+              urlPattern: /^https:\/\/fonts\.googleapis|gstatic\.com/,
               handler: 'CacheFirst',
               options: {
                 cacheName: 'google-fonts',
@@ -321,7 +343,7 @@ module.exports = (env, argv) => {
               },
             },
             {
-              urlPattern: /\/api\//,
+              urlPattern: /api/,
               handler: 'NetworkFirst',
               options: {
                 cacheName: 'api-cache',
@@ -352,14 +374,13 @@ module.exports = (env, argv) => {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      proxy: [
-        {
-          context: ['/api'],
+      proxy: {
+        '/api': {
           target: 'http://localhost:8000',
           changeOrigin: true,
           secure: false,
         },
-      ],
+      },
     },
     performance: {
       hints: isProduction ? 'warning' : false,
