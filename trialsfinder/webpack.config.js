@@ -352,13 +352,14 @@ module.exports = (env, argv) => {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      proxy: {
-        '/api': {
+      proxy: [
+        {
+          context: ['/api'],
           target: 'http://localhost:8000',
           changeOrigin: true,
           secure: false,
         },
-      },
+      ],
     },
     performance: {
       hints: isProduction ? 'warning' : false,

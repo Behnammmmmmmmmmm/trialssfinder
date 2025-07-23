@@ -22,7 +22,6 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error to console
     console.error('Error caught by ErrorBoundary:', error, errorInfo);
     handleError(error, 'React Error Boundary');
   }
@@ -76,8 +75,9 @@ export const withErrorBoundary = <P extends object>(
       <Component {...props} />
     </ErrorBoundary>
   );
-  
+
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name || 'Component'})`;
-  
   return WrappedComponent;
 };
+
+export default ErrorBoundary;
