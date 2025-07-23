@@ -1,0 +1,1 @@
+(self.webpackChunktrialsfinder=self.webpackChunktrialsfinder||[]).push([[604],{8604:(e,i,l)=>{l.r(i),l.d(i,{PrivacyPage:()=>a,default:()=>c}),l(5299);var r=l(2240);const a=()=>(0,r.FD)("div",{children:[(0,r.Y)("h1",{children:"Privacy Policy"}),(0,r.Y)("p",{children:"Privacy policy will be displayed here."})]}),c=a}}]);

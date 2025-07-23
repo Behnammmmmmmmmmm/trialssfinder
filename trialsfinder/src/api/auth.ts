@@ -1,15 +1,15 @@
-import api from '../utils/api';
+import { api } from '../utils/api';
 
 interface RegisterData {
-  username: string;
   email: string;
   password: string;
+  confirm_password?: string;
   user_type: 'user' | 'company';
   company_name?: string;
 }
 
 interface LoginData {
-  username: string;
+  email: string;
   password: string;
 }
 

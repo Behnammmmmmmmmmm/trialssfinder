@@ -1,0 +1,1 @@
+(self.webpackChunktrialsfinder=self.webpackChunktrialsfinder||[]).push([[583],{583:(a,s,t)=>{t.d(s,{r:()=>r});var e=t(6869);const r={trackEvent:a=>e.Ay.post("/analytics/events/",a),getTrialMetrics:(a,s)=>e.Ay.get(`/analytics/trials/${a}/metrics/`,{params:s})}}}]);
