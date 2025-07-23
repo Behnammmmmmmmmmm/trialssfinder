@@ -26,8 +26,8 @@ module.exports = (env, argv) => {
       filename: isProduction 
         ? 'static/js/[name].[contenthash:8].js' 
         : 'static/js/[name].js',
-      chunkFilename: isProduction
-        ? 'static/js/[name].[contenthash:8].chunk.js'
+      chunkFilename: isProduction 
+        ? 'static/js/[name].[contenthash:8].chunk.js' 
         : 'static/js/[name].chunk.js',
       clean: true,
       publicPath: '/',
@@ -116,7 +116,9 @@ module.exports = (env, argv) => {
                 discardComments: { removeAll: true },
                 normalizeWhitespace: true,
                 colormin: true,
-                convertValues: { precision: 2 },
+                convertValues: {
+                  precision: 2,
+                },
               },
             ],
           },
@@ -281,30 +283,28 @@ module.exports = (env, argv) => {
         'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
       }),
       new HtmlWebpackPlugin({
-        template: './public/index.html',
+        template: 'public/index.html',
         inject: 'body',
         scriptLoading: 'defer',
-        minify: isProduction
-          ? {
-              removeComments: true,
-              collapseWhitespace: true,
-              removeRedundantAttributes: true,
-              useShortDoctype: true,
-              removeEmptyAttributes: true,
-              removeStyleLinkTypeAttributes: true,
-              keepClosingSlash: true,
-              minifyJS: true,
-              minifyCSS: true,
-              minifyURLs: true,
-            }
-          : false,
+        minify: isProduction ? {
+          removeComments: true,
+          collapseWhitespace: true,
+          removeRedundantAttributes: true,
+          useShortDoctype: true,
+          removeEmptyAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          keepClosingSlash: true,
+          minifyJS: true,
+          minifyCSS: true,
+          minifyURLs: true,
+        } : false,
       }),
       new MiniCssExtractPlugin({
-        filename: isProduction
-          ? 'static/css/[name].[contenthash:8].css'
+        filename: isProduction 
+          ? 'static/css/[name].[contenthash:8].css' 
           : 'static/css/[name].css',
-        chunkFilename: isProduction
-          ? 'static/css/[name].[contenthash:8].chunk.css'
+        chunkFilename: isProduction 
+          ? 'static/css/[name].[contenthash:8].chunk.css' 
           : 'static/css/[name].chunk.css',
       }),
       new CopyPlugin({
@@ -316,7 +316,7 @@ module.exports = (env, argv) => {
               ignore: ['**/index.html'],
             },
           },
-          // Copy static files to static directory for Django
+          // Copy static files to the right location
           {
             from: 'public',
             to: 'static',
@@ -326,61 +326,55 @@ module.exports = (env, argv) => {
           },
         ],
       }),
-      ...(isProduction
-        ? [
-            new CompressionPlugin({
-              algorithm: 'gzip',
-              test: /\.(js|css|html|svg)$/,
-              threshold: 8192,
-              minRatio: 0.8,
-            }),
-            new CompressionPlugin({
-              algorithm: 'brotliCompress',
-              test: /\.(js|css|html|svg)$/,
-              threshold: 8192,
-              minRatio: 0.8,
-              filename: '[path][base].br',
-            }),
-            new GenerateSW({
-              clientsClaim: true,
-              skipWaiting: true,
-              exclude: [/\.map$/, /manifest$/, /\.js$/],
-              runtimeCaching: [
-                {
-                  urlPattern: /^https:\/\/fonts\.googleapis|gstatic\.com/,
-                  handler: 'CacheFirst',
-                  options: {
-                    cacheName: 'google-fonts',
-                    expiration: {
-                      maxEntries: 10,
-                      maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
-                    },
-                  },
+      ...(isProduction ? [
+        new CompressionPlugin({
+          algorithm: 'gzip',
+          test: /\.(js|css|html|svg)$/,
+          threshold: 8192,
+          minRatio: 0.8,
+        }),
+        new CompressionPlugin({
+          algorithm: 'brotliCompress',
+          test: /\.(js|css|html|svg)$/,
+          threshold: 8192,
+          minRatio: 0.8,
+          filename: '[path][base].br',
+        }),
+        new GenerateSW({
+          clientsClaim: true,
+          skipWaiting: true,
+          exclude: [/\.map$/, /manifest$/, /\.js$/],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts',
+                expiration: {
+                  maxEntries: 10,
+                  maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
                 },
-                {
-                  urlPattern: /\/api\//,
-                  handler: 'NetworkFirst',
-                  options: {
-                    cacheName: 'api-cache',
-                    networkTimeoutSeconds: 5,
-                    expiration: {
-                      maxEntries: 50,
-                      maxAgeSeconds: 60 * 5, // 5 minutes
-                    },
-                  },
+              },
+            },
+            {
+              urlPattern: /\/api\//,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'api-cache',
+                networkTimeoutSeconds: 5,
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 5, // 5 minutes
                 },
-              ],
-            }),
-          ]
-        : []),
-      ...(isAnalyze
-        ? [
-            new BundleAnalyzerPlugin({
-              analyzerMode: 'static',
-              openAnalyzer: true,
-            }),
-          ]
-        : []),
+              },
+            },
+          ],
+        }),
+      ] : []),
+      ...(isAnalyze ? [new BundleAnalyzerPlugin({
+        analyzerMode: 'static',
+        openAnalyzer: true,
+      })] : []),
     ].filter(Boolean),
     devServer: {
       hot: true,
@@ -396,7 +390,7 @@ module.exports = (env, argv) => {
       },
       proxy: {
         '/api': {
-          target: 'http://localhost:8000',
+          target: 'http://localhost:8080', // CHANGED FROM 8000 TO 8080
           changeOrigin: true,
           secure: false,
         },
