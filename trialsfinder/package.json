@@ -36,8 +36,6 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@sentry/react": "^7.112.0",
-    "@sentry/tracing": "^7.112.0",
     "axios": "^1.7.3",
     "date-fns": "^3.6.0",
     "i18next": "^23.12.2",
@@ -59,8 +57,6 @@
     "@fullhuman/postcss-purgecss": "^7.0.2",
     "@lhci/cli": "^0.12.0",
     "@playwright/test": "^1.40.0",
-    "@sentry/cli": "^2.36.1",
-    "@sentry/webpack-plugin": "^2.22.3",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.3.1",
     "@testing-library/user-event": "^14.6.1",
