@@ -8,8 +8,8 @@ from .models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'user_type', 'email_verified']
-        read_only_fields = ['id', 'email_verified']
+        fields = ('id', 'email', 'user_type', 'email_verified')
+        read_only_fields = ('id', 'email_verified')
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['email', 'password', 'confirm_password', 'user_type']
+        fields = ('email', 'password', 'confirm_password', 'user_type')
     
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -28,8 +28,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate_password(self, value):
         # Create a temporary user instance for validation
         user_data = self.initial_data
-        temp_user = User(email=user_data.get('email', ''))
-        
+        temp_user = User(email=user_data.get('email'))
         try:
             validate_password(value, user=temp_user)
         except ValidationError as e:
@@ -40,7 +39,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Only validate confirm_password for company users
         if data.get('user_type') == 'company':
             if data.get('password') != data.get('confirm_password'):
-                raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
+                raise serializers.ValidationError({
+                    'confirm_password': 'Passwords do not match'
+                })
         return data
     
     def create(self, validated_data):
@@ -50,9 +51,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
-            user_type=validated_data.get('user_type', 'user'),
-            username=None  # Will be auto-generated in save method
+            user_type=validated_data.get('user_type', 'user')
         )
+        user.username = None  # Will be auto-generated in save() method
         return user
 
 
@@ -61,7 +62,7 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField()
     
     def validate(self, data):
-        email = data.get('email', '').lower()
+        email = data.get('email').lower()
         password = data.get('password')
         
         user = authenticate(username=email, password=password)
