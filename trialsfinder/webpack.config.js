@@ -8,16 +8,15 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const WorkboxPlugin = require('workbox-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-const { sentryWebpackPlugin } = require('@sentry/webpack-plugin');
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
   const isDevelopment = argv.mode === 'development';
   const isAnalyze = env && env.ANALYZE === 'true';
-  
+
   // Ensure NODE_ENV is set correctly
   process.env.NODE_ENV = isProduction ? 'production' : 'development';
-  
+
   return {
     entry: {
       main: './src/index.tsx',
@@ -30,40 +29,39 @@ module.exports = (env, argv) => {
       publicPath: '/',
       assetModuleFilename: 'assets/[name].[hash:8][ext]',
     },
-    
     mode: isProduction ? 'production' : 'development',
     devtool: isProduction ? 'hidden-source-map' : 'cheap-module-source-map',
-    
     resolve: {
       extensions: ['.ts', '.tsx', '.js', '.jsx', '.mjs'],
       alias: {
         '@': path.resolve(__dirname, 'src'),
         // Use preact in production for smaller bundle
-        ...(isProduction && {
-          "react": "preact/compat",
-          "react-dom": "preact/compat",
-          "react/jsx-runtime": "preact/jsx-runtime"
-        }),
+        ...(isProduction ? {
+          'react': 'preact/compat',
+          'react-dom': 'preact/compat',
+          'react/jsx-runtime': 'preact/jsx-runtime'
+        } : {}),
       },
       // Handle Node.js polyfills
       fallback: {
-        "stream": false,
-        "http": false,
-        "https": false,
-        "zlib": false,
-        "url": false,
-        "util": false,
-        "buffer": false,
-        "process": false,
+        stream: false,
+        http: false,
+        https: false,
+        zlib: false,
+        url: false,
+        util: false,
+        buffer: false,
+        process: false,
       },
     },
-    
     optimization: {
       minimize: isProduction,
       minimizer: [
         new TerserPlugin({
           terserOptions: {
-            parse: { ecma: 8 },
+            parse: {
+              ecma: 8,
+            },
             compress: {
               ecma: 5,
               warnings: false,
@@ -122,10 +120,8 @@ module.exports = (env, argv) => {
           },
         }),
       ],
-      
       runtimeChunk: 'single',
       moduleIds: 'deterministic',
-      
       splitChunks: {
         chunks: 'all',
         maxInitialRequests: 30,
@@ -137,17 +133,10 @@ module.exports = (env, argv) => {
           // React/Preact bundle
           framework: {
             name: 'framework',
-            test: /[\\/]node_modules[\\/](react|react-dom|preact|scheduler|object-assign)[\\/]/,
+            test: /[\\/]node_modules[\\/](react|react-dom|preact|scheduler|object-assign)/,
             priority: 50,
             chunks: 'all',
             enforce: true,
-          },
-          // Sentry bundle
-          sentry: {
-            name: 'sentry',
-            test: /[\\/]node_modules[\\/]@sentry[\\/]/,
-            priority: 40,
-            chunks: 'all',
           },
           // Core vendor libraries
           vendor: {
@@ -159,17 +148,17 @@ module.exports = (env, argv) => {
               // Group small packages together
               const corePackages = ['tslib', 'object-assign', 'scheduler'];
               if (corePackages.includes(packageName)) {
-                return 'vendor.core';
+                return 'vendor-core';
               }
               
               // Split large packages into separate chunks
               const largePackages = ['axios', 'date-fns', 'i18next', 'react-router-dom', 'zustand'];
               if (largePackages.includes(packageName)) {
-                return `vendor.${packageName.replace('@', '')}`;
+                return `vendor-${packageName.replace('@', '')}`;
               }
               
               // Group remaining small packages
-              return 'vendor.misc';
+              return 'vendor-misc';
             },
             priority: 10,
             minChunks: 1,
@@ -185,7 +174,6 @@ module.exports = (env, argv) => {
         },
       },
     },
-    
     module: {
       rules: [
         {
@@ -201,9 +189,7 @@ module.exports = (env, argv) => {
               babelrc: false,
               presets: [
                 ['@babel/preset-env', {
-                  targets: {
-                    browsers: ['>0.25%', 'not dead']
-                  },
+                  targets: { browsers: ['>0.25%', 'not dead'] },
                   modules: false,
                   useBuiltIns: false,
                   // Exclude transforms for modern browsers
@@ -213,17 +199,17 @@ module.exports = (env, argv) => {
                   runtime: 'automatic',
                   development: isDevelopment,
                 }],
-                '@babel/preset-typescript'
+                '@babel/preset-typescript',
               ],
               plugins: [
                 '@babel/plugin-syntax-dynamic-import',
                 ...(isProduction ? [
                   ['babel-plugin-transform-react-remove-prop-types', {
                     mode: 'remove',
-                    removeImport: true
-                  }]
-                ] : [])
-              ]
+                    removeImport: true,
+                  }],
+                ] : []),
+              ],
             },
           },
         },
@@ -252,7 +238,7 @@ module.exports = (env, argv) => {
           type: 'asset',
           parser: {
             dataUrlCondition: {
-              maxSize: 4 * 1024,
+              maxSize: 4 * 1024, // 4kb
             },
           },
           generator: {
@@ -268,15 +254,10 @@ module.exports = (env, argv) => {
         },
       ],
     },
-    
     plugins: [
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
-        'process.env.REACT_APP_SENTRY_DSN': JSON.stringify(process.env.REACT_APP_SENTRY_DSN || 'https://6a27513d3e5b33996570af2d2da16310@o4509711519186949.ingest.de.sentry.io/4509711520694352'),
-        'process.env.REACT_APP_ENVIRONMENT': JSON.stringify(process.env.REACT_APP_ENVIRONMENT || 'production'),
-        'process.env.REACT_APP_VERSION': JSON.stringify(process.env.REACT_APP_VERSION || '1.0.0'),
       }),
-      
       new HtmlWebpackPlugin({
         template: './public/index.html',
         inject: 'body',
@@ -294,93 +275,71 @@ module.exports = (env, argv) => {
           minifyURLs: true,
         } : false,
       }),
-      
       new MiniCssExtractPlugin({
         filename: isProduction ? 'css/[name].[contenthash:8].css' : 'css/[name].css',
         chunkFilename: isProduction ? 'css/[name].[contenthash:8].chunk.css' : 'css/[name].chunk.css',
       }),
-      
       new CopyPlugin({
         patterns: [
-          { 
+          {
             from: 'public',
-            to: '',
+            to: '.',
             globOptions: {
               ignore: ['**/index.html'],
             },
           },
         ],
       }),
-      
-      isProduction && new CompressionPlugin({
-        algorithm: 'gzip',
-        test: /\.(js|css|html|svg)$/,
-        threshold: 8192,
-        minRatio: 0.8,
-      }),
-      
-      isProduction && new CompressionPlugin({
-        algorithm: 'brotliCompress',
-        test: /\.(js|css|html|svg)$/,
-        threshold: 8192,
-        minRatio: 0.8,
-        filename: '[path][base].br',
-      }),
-      
-      isProduction && new WorkboxPlugin.GenerateSW({
-        clientsClaim: true,
-        skipWaiting: true,
-        exclude: [/\.map$/, /^manifest.*\.js$/],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365,
+      ...(isProduction ? [
+        new CompressionPlugin({
+          algorithm: 'gzip',
+          test: /\.(js|css|html|svg)$/,
+          threshold: 8192,
+          minRatio: 0.8,
+        }),
+        new CompressionPlugin({
+          algorithm: 'brotliCompress',
+          test: /\.(js|css|html|svg)$/,
+          threshold: 8192,
+          minRatio: 0.8,
+          filename: '[path][base].br',
+        }),
+        new WorkboxPlugin.GenerateSW({
+          clientsClaim: true,
+          skipWaiting: true,
+          exclude: [/\.map$/, /manifest$/, /\.js$/],
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts',
+                expiration: {
+                  maxEntries: 10,
+                  maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+                },
               },
             },
-          },
-          {
-            urlPattern: /\/api\//,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              networkTimeoutSeconds: 5,
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 5,
+            {
+              urlPattern: /\/api\//,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'api-cache',
+                networkTimeoutSeconds: 5,
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 5, // 5 minutes
+                },
               },
             },
-          },
-        ],
-      }),
-      
-      // Sentry plugin for source map upload
-      isProduction && sentryWebpackPlugin({
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-        org: 'eas-mc',
-        project: 'javascript-react',
-        release: process.env.REACT_APP_VERSION || '1.0.0',
-        include: './dist',
-        ignore: ['node_modules', 'webpack.config.js'],
-        urlPrefix: '~/',
-        deleteAfterCompile: true,
-        silent: true,
-        validate: true,
-        deploy: {
-          env: process.env.REACT_APP_ENVIRONMENT || 'production',
-        },
-      }),
-      
-      isAnalyze && new BundleAnalyzerPlugin({
+          ],
+        }),
+      ] : []),
+      ...(isAnalyze ? [new BundleAnalyzerPlugin({
         analyzerMode: 'static',
         openAnalyzer: true,
-      }),
+      })] : []),
     ].filter(Boolean),
-    
     devServer: {
       hot: true,
       port: 3000,
@@ -393,16 +352,14 @@ module.exports = (env, argv) => {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      proxy: [
-        {
-          context: ['/api'],
+      proxy: {
+        '/api': {
           target: 'http://localhost:8000',
           changeOrigin: true,
           secure: false,
-        }
-      ],
+        },
+      },
     },
-    
     performance: {
       hints: isProduction ? 'warning' : false,
       maxEntrypointSize: 250000,
