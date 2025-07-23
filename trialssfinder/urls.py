@@ -8,18 +8,11 @@ from django.views.static import serve
 
 from apps.core.views import health_check, metrics
 
-def trigger_error(request):
-    """Sentry debug endpoint"""
-    division_by_zero = 1 / 0
-
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
     
-    # Sentry debug endpoint
-    path('sentry-debug/', trigger_error),
-    
-    # Health and monitoring endpoints  
+    # Health and monitoring endpoints
     path('health/', health_check, name='health_check'),
     path('metrics/', metrics, name='metrics'),
     
@@ -40,43 +33,23 @@ urlpatterns = [
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-# Check for React build directory
-react_build_dir = os.path.join(settings.BASE_DIR, 'trialsfinder', 'build')
-react_index_path = os.path.join(react_build_dir, 'index.html')
+# Check for React build
+react_build_dir = os.path.join(settings.BASE_DIR, 'trialsfinder', 'dist')
+react_index_html = os.path.join(react_build_dir, 'index.html')
 
-# Always serve favicon and manifest from public directory in development
-public_dir = os.path.join(settings.BASE_DIR, 'trialsfinder', 'public')
-if os.path.exists(public_dir):
-    urlpatterns += [
-        path('favicon.ico', serve, {'document_root': public_dir, 'path': 'favicon.ico'}),
-        path('favicon.svg', serve, {'document_root': public_dir, 'path': 'favicon.svg'}),
-        path('manifest.json', serve, {'document_root': public_dir, 'path': 'manifest.json'}),
-        path('robots.txt', serve, {'document_root': public_dir, 'path': 'robots.txt'}),
-        path('logo192.png', serve, {'document_root': public_dir, 'path': 'logo192.png'}),
-        path('logo512.png', serve, {'document_root': public_dir, 'path': 'logo512.png'}),
-    ]
-
-if os.path.exists(react_build_dir) and os.path.exists(react_index_path):
-    # Production mode - serve from build directory
+if os.path.exists(react_build_dir) and os.path.exists(react_index_html):
+    # Serve React build files
     urlpatterns += [
         # Serve static files from React build
         re_path(r'^static/(?P<path>.*)$', serve, {'document_root': os.path.join(react_build_dir, 'static')}),
-    ]
-    
-    # Serve React app for all other routes (must be last)
-    urlpatterns += [
-        re_path(r'^(?!api|admin|static|media|health|metrics|sentry-debug|favicon|manifest|robots|logo).*$', 
-                TemplateView.as_view(template_name='index.html'), name='react_app'),
+        # Catch all other routes and serve React app
+        re_path(r'^(?!api|admin|static|media|health|metrics).*$', TemplateView.as_view(template_name='index.html'), name='react_app'),
     ]
 else:
-    # Development mode - show setup instructions
-    # Serve static files in development
-    if settings.DEBUG:
-        urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    
+    # Development fallback
     urlpatterns += [
-        re_path(r'^$', TemplateView.as_view(template_name='react_not_built.html'), name='home'),
-        re_path(r'^(?!api|admin|static|media|health|metrics|sentry-debug|favicon|manifest|robots|logo).*$', 
-                TemplateView.as_view(template_name='react_not_built.html'), name='fallback'),
+        re_path(r'^$', TemplateView.as_view(template_name='fallback.html'), name='home'),
+        re_path(r'^(?!api|admin|static|media|health|metrics).*$', TemplateView.as_view(template_name='fallback.html'), name='fallback'),
     ]
