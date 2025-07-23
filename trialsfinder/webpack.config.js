@@ -6,7 +6,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-const WorkboxPlugin = require('workbox-webpack-plugin');
+const { GenerateSW } = require('workbox-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = (env, argv) => {
@@ -22,12 +22,12 @@ module.exports = (env, argv) => {
       main: './src/index.tsx',
     },
     output: {
-      path: path.resolve(__dirname, 'dist'),
-      filename: isProduction ? 'js/[name].[contenthash:8].js' : 'js/[name].js',
-      chunkFilename: isProduction ? 'js/[name].[contenthash:8].chunk.js' : 'js/[name].chunk.js',
+      path: path.resolve(__dirname, 'build'),
+      filename: isProduction ? 'static/js/[name].[contenthash:8].js' : 'static/js/[name].js',
+      chunkFilename: isProduction ? 'static/js/[name].[contenthash:8].chunk.js' : 'static/js/[name].chunk.js',
       clean: true,
       publicPath: '/',
-      assetModuleFilename: 'assets/[name].[hash:8].[ext]',
+      assetModuleFilename: 'static/assets/[name].[hash:8][ext]',
     },
     mode: isProduction ? 'production' : 'development',
     devtool: isProduction ? 'hidden-source-map' : 'cheap-module-source-map',
@@ -35,23 +35,21 @@ module.exports = (env, argv) => {
       extensions: ['.ts', '.tsx', '.js', '.jsx', '.mjs'],
       alias: {
         '@': path.resolve(__dirname, 'src'),
-        // Use preact in production for smaller bundle
         ...(isProduction && {
           'react': 'preact/compat',
           'react-dom': 'preact/compat',
-          'react/jsx-runtime': 'preact/jsx-runtime'
+          'react/jsx-runtime': 'preact/jsx-runtime',
         }),
       },
-      // Handle Node.js polyfills
       fallback: {
-        'stream': false,
-        'http': false,
-        'https': false,
-        'zlib': false,
-        'url': false,
-        'util': false,
-        'buffer': false,
-        'process': false,
+        stream: false,
+        http: false,
+        https: false,
+        zlib: false,
+        url: false,
+        util: false,
+        buffer: false,
+        process: false,
       },
     },
     optimization: {
@@ -133,7 +131,7 @@ module.exports = (env, argv) => {
           // React/Preact bundle
           framework: {
             name: 'framework',
-            test: /[\\/]node_modules[\\/](react|react-dom|preact|scheduler|object-assign)[\\/]/,
+            test: /[\\/]node_modules[\\/](react|react-dom|preact|scheduler|object-assign)/,
             priority: 50,
             chunks: 'all',
             enforce: true,
@@ -141,7 +139,7 @@ module.exports = (env, argv) => {
           // React Router and state management
           'react-router': {
             name: 'react-router',
-            test: /[\\/]node_modules[\\/](react-router|react-router-dom|history)[\\/]/,
+            test: /[\\/]node_modules[\\/](react-router|react-router-dom|history)/,
             priority: 40,
             chunks: 'all',
             enforce: true,
@@ -149,7 +147,7 @@ module.exports = (env, argv) => {
           // State management
           state: {
             name: 'state',
-            test: /[\\/]node_modules[\\/](zustand|immer)[\\/]/,
+            test: /[\\/]node_modules[\\/](zustand|immer)/,
             priority: 40,
             chunks: 'all',
             enforce: true,
@@ -205,29 +203,40 @@ module.exports = (env, argv) => {
               configFile: path.resolve(__dirname, 'babel.config.js'),
               babelrc: false,
               presets: [
-                ['@babel/preset-env', {
-                  targets: {
-                    browsers: '>0.25%, not dead',
+                [
+                  '@babel/preset-env',
+                  {
+                    targets: {
+                      browsers: ['>0.25%', 'not dead'],
+                    },
+                    modules: false,
+                    useBuiltIns: false,
+                    // Exclude transforms for modern browsers
+                    exclude: ['transform-typeof-symbol'],
                   },
-                  modules: false,
-                  useBuiltIns: false,
-                  // Exclude transforms for modern browsers
-                  exclude: ['transform-typeof-symbol'],
-                }],
-                ['@babel/preset-react', {
-                  runtime: 'automatic',
-                  development: isDevelopment,
-                }],
+                ],
+                [
+                  '@babel/preset-react',
+                  {
+                    runtime: 'automatic',
+                    development: isDevelopment,
+                  },
+                ],
                 '@babel/preset-typescript',
               ],
               plugins: [
                 '@babel/plugin-syntax-dynamic-import',
-                ...(isProduction ? [
-                  ['babel-plugin-transform-react-remove-prop-types', {
-                    mode: 'remove',
-                    removeImport: true,
-                  }],
-                ] : []),
+                ...(isProduction
+                  ? [
+                      [
+                        'babel-plugin-transform-react-remove-prop-types',
+                        {
+                          mode: 'remove',
+                          removeImport: true,
+                        },
+                      ],
+                    ]
+                  : []),
               ],
             },
           },
@@ -263,7 +272,7 @@ module.exports = (env, argv) => {
             },
           },
           generator: {
-            filename: 'images/[name].[hash:8][ext]',
+            filename: 'static/images/[name].[hash:8][ext]',
           },
         },
         // Fonts
@@ -271,7 +280,7 @@ module.exports = (env, argv) => {
           test: /\.(woff|woff2|eot|ttf|otf)$/i,
           type: 'asset/resource',
           generator: {
-            filename: 'fonts/[name].[hash:8][ext]',
+            filename: 'static/fonts/[name].[hash:8][ext]',
           },
         },
       ],
@@ -284,22 +293,24 @@ module.exports = (env, argv) => {
         template: 'public/index.html',
         inject: 'body',
         scriptLoading: 'defer',
-        minify: isProduction ? {
-          removeComments: true,
-          collapseWhitespace: true,
-          removeRedundantAttributes: true,
-          useShortDoctype: true,
-          removeEmptyAttributes: true,
-          removeStyleLinkTypeAttributes: true,
-          keepClosingSlash: true,
-          minifyJS: true,
-          minifyCSS: true,
-          minifyURLs: true,
-        } : false,
+        minify: isProduction
+          ? {
+              removeComments: true,
+              collapseWhitespace: true,
+              removeRedundantAttributes: true,
+              useShortDoctype: true,
+              removeEmptyAttributes: true,
+              removeStyleLinkTypeAttributes: true,
+              keepClosingSlash: true,
+              minifyJS: true,
+              minifyCSS: true,
+              minifyURLs: true,
+            }
+          : false,
       }),
       new MiniCssExtractPlugin({
-        filename: isProduction ? 'css/[name].[contenthash:8].css' : 'css/[name].css',
-        chunkFilename: isProduction ? 'css/[name].[contenthash:8].chunk.css' : 'css/[name].chunk.css',
+        filename: isProduction ? 'static/css/[name].[contenthash:8].css' : 'static/css/[name].css',
+        chunkFilename: isProduction ? 'static/css/[name].[contenthash:8].chunk.css' : 'static/css/[name].chunk.css',
       }),
       new CopyPlugin({
         patterns: [
@@ -310,57 +321,71 @@ module.exports = (env, argv) => {
               ignore: ['**/index.html'],
             },
           },
+          // Copy static files to static directory for Django
+          {
+            from: 'public',
+            to: 'static',
+            globOptions: {
+              ignore: ['**/index.html'],
+            },
+          },
         ],
       }),
-      ...(isProduction ? [
-        new CompressionPlugin({
-          algorithm: 'gzip',
-          test: /\.(js|css|html|svg)$/,
-          threshold: 8192,
-          minRatio: 0.8,
-        }),
-        new CompressionPlugin({
-          algorithm: 'brotliCompress',
-          test: /\.(js|css|html|svg)$/,
-          threshold: 8192,
-          minRatio: 0.8,
-          filename: '[path][base].br',
-        }),
-        new WorkboxPlugin.GenerateSW({
-          clientsClaim: true,
-          skipWaiting: true,
-          exclude: [/\.map$/, /manifest$/, /\.js$/],
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/fonts\.googleapis|gstatic\.com/,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+      ...(isProduction
+        ? [
+            new CompressionPlugin({
+              algorithm: 'gzip',
+              test: /\.(js|css|html|svg)$/,
+              threshold: 8192,
+              minRatio: 0.8,
+            }),
+            new CompressionPlugin({
+              algorithm: 'brotliCompress',
+              test: /\.(js|css|html|svg)$/,
+              threshold: 8192,
+              minRatio: 0.8,
+              filename: '[path][base].br',
+            }),
+            new GenerateSW({
+              clientsClaim: true,
+              skipWaiting: true,
+              exclude: [/\.map$/, /manifest$/, /\.js$/],
+              runtimeCaching: [
+                {
+                  urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com/,
+                  handler: 'CacheFirst',
+                  options: {
+                    cacheName: 'google-fonts',
+                    expiration: {
+                      maxEntries: 10,
+                      maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+                    },
+                  },
                 },
-              },
-            },
-            {
-              urlPattern: /api/,
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'api-cache',
-                networkTimeoutSeconds: 5,
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 60 * 5, // 5 minutes
+                {
+                  urlPattern: /\/api\//,
+                  handler: 'NetworkFirst',
+                  options: {
+                    cacheName: 'api-cache',
+                    networkTimeoutSeconds: 5,
+                    expiration: {
+                      maxEntries: 50,
+                      maxAgeSeconds: 60 * 5, // 5 minutes
+                    },
+                  },
                 },
-              },
-            },
-          ],
-        }),
-      ] : []),
-      ...(isAnalyze ? [new BundleAnalyzerPlugin({
-        analyzerMode: 'static',
-        openAnalyzer: true,
-      })] : []),
+              ],
+            }),
+          ]
+        : []),
+      ...(isAnalyze
+        ? [
+            new BundleAnalyzerPlugin({
+              analyzerMode: 'static',
+              openAnalyzer: true,
+            }),
+          ]
+        : []),
     ].filter(Boolean),
     devServer: {
       hot: true,
@@ -374,14 +399,13 @@ module.exports = (env, argv) => {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      proxy: [
-        {
-          context: ['/api'],
+      proxy: {
+        '/api': {
           target: 'http://localhost:8000',
           changeOrigin: true,
           secure: false,
         },
-      ],
+      },
     },
     performance: {
       hints: isProduction ? 'warning' : false,
