@@ -2,7 +2,7 @@ module.exports = {
   presets: [
     ['@babel/preset-env', {
       targets: {
-        browsers: ['>0.25%', 'not dead']
+        browsers: ['> 0.25%', 'not dead']
       },
       modules: false,
       useBuiltIns: false
