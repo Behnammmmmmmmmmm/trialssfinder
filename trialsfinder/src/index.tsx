@@ -14,7 +14,7 @@ console.log('Root element found, creating React root');
 // Create root
 const root = ReactDOM.createRoot(rootElement);
 
-// Simple test render
+// Initial render to show loading state
 root.render(
   <div style={{ padding: '20px' }}>
     <h1>TrialsFinder is loading...</h1>
@@ -24,26 +24,25 @@ root.render(
 
 // Load styles
 try {
-  import('./styles/index.css').catch(() => {
-    console.error('Failed to load styles');
-  });
+  import('./styles/index.css');
 } catch {
+  console.error('Failed to load styles');
   // Styles might not be available yet
 }
 
 // Load the app
 setTimeout(() => {
-  console.log('Loading main app...');
+  console.log('Loading main app');
   import('./App')
     .then(({ default: App }) => {
-      console.log('App loaded, rendering...');
+      console.log('App loaded, rendering');
       root.render(
         <React.StrictMode>
           <App />
         </React.StrictMode>
       );
     })
-    .catch((error) => {
+    .catch(error => {
       console.error('Failed to load app:', error);
       root.render(
         <div style={{ padding: '20px', color: 'red' }}>
