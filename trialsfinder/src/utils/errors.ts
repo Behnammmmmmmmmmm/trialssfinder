@@ -49,10 +49,7 @@ export const parseError = (error: unknown): TrialsFinderError => {
       return new TrialsFinderError('Network error', 'network_error');
     }
     
-    return new TrialsFinderError(
-      axiosError.message || 'Request failed',
-      'request_error'
-    );
+    return new TrialsFinderError(axiosError.message || 'Request failed', 'request_error');
   }
   
   if (error instanceof TrialsFinderError) {
@@ -73,7 +70,7 @@ export const getErrorMessage = (error: unknown): string => {
     'network_error': 'Unable to connect to the server. Please check your internet connection.',
     'timeout_error': 'Request took too long. Please try again.',
     'authentication_error': 'Please log in to continue.',
-    'permission_error': 'You don\'t have permission to perform this action.',
+    'permission_error': "You don't have permission to perform this action.",
     'validation_error': 'Please check your input and try again.',
     'not_found': 'The requested resource was not found.',
     'internal_error': 'Something went wrong on our end. Please try again later.',
@@ -83,22 +80,18 @@ export const getErrorMessage = (error: unknown): string => {
 };
 
 // Global error handler
-export const handleError = (error: unknown, context?: string): void => {
+export const handleError = (error: unknown, context: string): void => {
   const parsedError = parseError(error);
-  
-  // Log to monitoring service
-  if (window.logger) {
-    window.logger.error('Application error', {
-      error: parsedError,
-      context,
-      user: window.currentUser?.username || 'anonymous',
-      url: window.location.href,
-    });
-  }
   
   // Log to console in development
   if (process.env.NODE_ENV === 'development') {
-    console.error(`[${context || 'Application'}] Error:`, parsedError);
+    console.error(`[${context}] Application Error:`, parsedError);
+  }
+  
+  // You can add your own error logging service here
+  // For example, send to your backend logging endpoint
+  if (window.logger) {
+    window.logger.error('Application error', { error: parsedError, context });
   }
 };
 
@@ -108,7 +101,7 @@ export const setupGlobalErrorHandlers = (): void => {
     handleError(event.reason, 'Unhandled Promise Rejection');
     event.preventDefault();
   });
-
+  
   window.addEventListener('error', (event) => {
     handleError(event.error, 'Global Error');
     event.preventDefault();
