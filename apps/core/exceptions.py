@@ -9,11 +9,6 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
-try:
-    from sentry_sdk import capture_exception
-except ImportError:
-    capture_exception = None
-
 logger = logging.getLogger("trialssfinder.errors")
 
 
@@ -88,10 +83,6 @@ def custom_exception_handler(exc, context):
     if isinstance(exc, TrialsFinderException):
         logger.error(f"{exc.__class__.__name__}: {exc.message}", extra={"code": exc.code, "details": exc.details})
         
-        # Send to Sentry if available
-        if capture_exception and exc.status_code >= 500:
-            capture_exception(exc)
-        
         return Response(
             {"error": {"code": exc.code, "message": exc.message, "details": exc.details}}, status=exc.status_code
         )
@@ -114,10 +105,6 @@ def custom_exception_handler(exc, context):
     elif isinstance(exc, IntegrityError):
         logger.error(f"Database integrity error: {str(exc)}")
         
-        # Send to Sentry if available
-        if capture_exception:
-            capture_exception(exc)
-        
         return Response(
             {"error": {"code": "database_error", "message": "Database constraint violation", "details": {}}},
             status=status.HTTP_409_CONFLICT,
@@ -126,10 +113,6 @@ def custom_exception_handler(exc, context):
     # Handle all other exceptions
     else:
         logger.error(f"Unhandled exception: {str(exc)}\n{traceback.format_exc()}")
-        
-        # Send to Sentry if available
-        if capture_exception:
-            capture_exception(exc)
         
         return Response(
             {"error": {"code": "internal_error", "message": "An unexpected error occurred", "details": {}}},
