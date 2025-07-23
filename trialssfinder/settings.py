@@ -4,7 +4,7 @@ from datetime import timedelta
 from pathlib import Path
 from decouple import config
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -133,20 +133,18 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Add static directories
 STATICFILES_DIRS = []
 
-# Add React build directory
+# React build directory
 react_build_dir = BASE_DIR / 'trialsfinder' / 'build'
 if react_build_dir.exists():
     STATICFILES_DIRS.append(react_build_dir)
+    # Also add the static subdirectory from React build
+    react_build_static = react_build_dir / 'static'
+    if react_build_static.exists():
+        STATICFILES_DIRS.append(react_build_static)
 
-# Also add the static subdirectory from React build
-react_build_static = react_build_dir / 'static'
-if react_build_static.exists():
-    STATICFILES_DIRS.append(react_build_static)
-
-# Add public directory for development
-public_dir = BASE_DIR / 'trialsfinder' / 'public'
-if public_dir.exists():
-    STATICFILES_DIRS.append(public_dir)
+# Add templates directory
+templates_dir = BASE_DIR / 'templates'
+templates_dir.mkdir(exist_ok=True)
 
 # WhiteNoise configuration
 WHITENOISE_USE_FINDERS = True
@@ -163,7 +161,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom user model
 AUTH_USER_MODEL = 'authentication.User'
 
-# REST Framework settings (keeping the rest of your configuration)
+# REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -233,7 +231,7 @@ CORS_ALLOW_HEADERS = [
     'cache-control',
 ]
 
-# CSRF configuration
+# CSRF configuration  
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -259,7 +257,7 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_FAILURE_VIEW = 'apps.core.views.csrf_failure'
 
-# Content Security Policy for development
+# Content Security Policy
 if DEBUG:
     CSP_DEFAULT_SRC = ("'self'", "'unsafe-inline'", "'unsafe-eval'", "http://localhost:3000", "http://localhost:8000", "http://localhost:8080")
     CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "http://localhost:3000", "http://localhost:8000", "http://localhost:8080")
@@ -334,12 +332,12 @@ LOGGING = {
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse',
-        },
+        }
     },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'formatter': 'verbose'
         },
     },
     'root': {
