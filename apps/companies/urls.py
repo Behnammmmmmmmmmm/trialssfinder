@@ -1,8 +1,7 @@
-"""URL patterns."""
+# URL patterns
 from django.urls import path
-
 from . import views
 
 urlpatterns = [
-    path("profile/", views.company_profile, name="profile"),
+    path('profile/', views.company_profile, name='profile'),  # Added trailing slash
 ]
