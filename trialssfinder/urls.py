@@ -6,7 +6,6 @@ from django.urls import include, path, re_path
 from django.views.generic import TemplateView
 from django.views.static import serve
 from django.http import HttpResponse
-
 from apps.core.views import health_check, metrics
 
 def serve_react_app(request, path=''):
@@ -22,14 +21,14 @@ def serve_react_app(request, path=''):
         return HttpResponse(template.render({}, request))
 
 urlpatterns = [
-    # Admin - only include once
+    # Admin
     path('admin/', admin.site.urls),
     
     # Health and monitoring endpoints
     path('health/', health_check, name='health_check'),
     path('metrics/', metrics, name='metrics'),
     
-    # API endpoints
+    # API endpoints with trailing slashes
     path('api/', include('apps.core.urls')),
     path('api/auth/', include('apps.authentication.urls')),
     path('api/companies/', include('apps.companies.urls')),
@@ -40,7 +39,19 @@ urlpatterns = [
     path('api/admin/', include('apps.admin_dashboard.urls')),
     path('api/compliance/', include('apps.compliance.urls')),
     path('api/payments/', include('apps.payments.urls')),
+    
+    # Locales endpoint
+    path('locales/<str:lang>/<str:filename>', serve_locales, name='serve_locales'),
 ]
+
+def serve_locales(request, lang, filename):
+    """Serve locale files"""
+    locale_path = os.path.join(settings.BASE_DIR, 'trialsfinder', 'public', 'locales', lang, filename)
+    try:
+        with open(locale_path, 'r', encoding='utf-8') as f:
+            return HttpResponse(f.read(), content_type='application/json')
+    except:
+        return HttpResponse('{}', content_type='application/json')
 
 # Serve media files in development
 if settings.DEBUG:
@@ -48,24 +59,29 @@ if settings.DEBUG:
 
 # Check for React build
 react_build_dir = os.path.join(settings.BASE_DIR, 'trialsfinder', 'dist')
-react_index_html = os.path.join(react_build_dir, 'index.html')
+react_public_dir = os.path.join(settings.BASE_DIR, 'trialsfinder', 'public')
 
-if os.path.exists(react_build_dir) and os.path.exists(react_index_html):
+if os.path.exists(react_build_dir):
     # Serve React build files
     urlpatterns += [
-        # Serve specific files from root
-        path('favicon.ico', serve, {'document_root': react_build_dir, 'path': 'favicon.ico'}),
-        path('favicon.svg', serve, {'document_root': react_build_dir, 'path': 'favicon.svg'}),
-        path('manifest.json', serve, {'document_root': react_build_dir, 'path': 'manifest.json'}),
-        path('robots.txt', serve, {'document_root': react_build_dir, 'path': 'robots.txt'}),
-        path('logo192.png', serve, {'document_root': react_build_dir, 'path': 'logo192.png'}),
-        path('logo512.png', serve, {'document_root': react_build_dir, 'path': 'logo512.png'}),
-        path('service-worker.js', serve, {'document_root': react_build_dir, 'path': 'service-worker.js'}),
+        # Serve specific files from public directory first
+        path('favicon.ico', serve, {'document_root': react_public_dir, 'path': 'favicon.ico'}),
+        path('favicon.svg', serve, {'document_root': react_public_dir, 'path': 'favicon.svg'}),
+        path('manifest.json', serve, {'document_root': react_public_dir, 'path': 'manifest.json'}),
+        path('robots.txt', serve, {'document_root': react_public_dir, 'path': 'robots.txt'}),
+        path('logo192.png', serve, {'document_root': react_public_dir, 'path': 'logo192.png'}),
+        path('logo512.png', serve, {'document_root': react_public_dir, 'path': 'logo512.png'}),
+        path('logo192.svg', serve, {'document_root': react_public_dir, 'path': 'logo192.svg'}),
+        path('logo512.svg', serve, {'document_root': react_public_dir, 'path': 'logo512.svg'}),
+        path('service-worker.js', serve, {'document_root': react_public_dir, 'path': 'serviceWorker.js'}),
+        path('search-icon.svg', serve, {'document_root': react_public_dir, 'path': 'search-icon.svg'}),
+        path('screenshots/homepage.png', serve, {'document_root': react_public_dir, 'path': 'screenshots/homepage.png'}),
+        path('screenshots/search.png', serve, {'document_root': react_public_dir, 'path': 'screenshots/search.png'}),
         
         # Serve static files from React build
         re_path(r'^static/(?P<path>.*)$', serve, {'document_root': os.path.join(react_build_dir, 'static')}),
         
-        # Catch all other routes and serve React app directly (not as template)
+        # Catch all other routes and serve React app
         re_path(r'^(?!api|admin|static|media|health|metrics|favicon|manifest|robots|logo|service-worker).*$', serve_react_app, name='react_app'),
     ]
 else:
