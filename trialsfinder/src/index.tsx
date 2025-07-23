@@ -1,19 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import * as Sentry from '@sentry/react';
-import { initSentry } from './utils/sentry';
-
-// Initialize Sentry before anything else
-initSentry();
 
 // Critical CSS only
 import './styles/critical.css';
 
 // Get root element
 const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error('Failed to find the root element');
-}
+if (!rootElement) throw new Error('Failed to find the root element');
 
 // Create root
 const root = ReactDOM.createRoot(rootElement);
@@ -29,51 +22,31 @@ root.render(
 );
 
 // Load the app asynchronously
-const loadApp = async () => {
+(async () => {
   try {
     // Load remaining CSS
-    const { default: App } = await import(/* webpackPreload: true */ './App');
-    await import(/* webpackPreload: true */ './styles/index.css');
+    const { default: App } = await import('./App');
+    await import('./styles/index.css');
     
-    // Render full app with Sentry error boundary
+    // Render full app
     root.render(
       <React.StrictMode>
-        <Sentry.ErrorBoundary fallback={({ error, resetError }) => (
-          <div style={{ 
-            minHeight: '100vh', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            padding: '2rem'
-          }}>
-            <div style={{ maxWidth: '600px', textAlign: 'center' }}>
-              <h1>Something went wrong</h1>
-              <p>We're sorry for the inconvenience. The error has been reported.</p>
-              <button onClick={resetError} style={{ marginTop: '1rem' }}>
-                Try again
-              </button>
-            </div>
-          </div>
-        )} showDialog>
-          <App />
-        </Sentry.ErrorBoundary>
+        <App />
       </React.StrictMode>
     );
     
     // Register service worker with proper cleanup
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+        navigator.serviceWorker.register('/service-worker.js').catch(() => {
+          // Silently fail
+        });
       });
     }
   } catch (error) {
-    Sentry.captureException(error);
     console.error('Failed to load app:', error);
   }
-};
-
-// Start loading immediately
-loadApp().catch(console.error);
+})();
 
 // Clean up event listeners on page unload to allow bfcache
 window.addEventListener('pagehide', () => {
@@ -84,4 +57,4 @@ window.addEventListener('pagehide', () => {
 });
 
 // Avoid using unload event which prevents bfcache
-// window.addEventListener('unload', ...) - DON'T USE THIS
+// window.addEventListener('unload', ...) // DON'T USE THIS
