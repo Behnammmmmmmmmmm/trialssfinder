@@ -41,10 +41,20 @@ react_index_html = os.path.join(react_build_dir, 'index.html')
 if os.path.exists(react_build_dir) and os.path.exists(react_index_html):
     # Serve React build files
     urlpatterns += [
+        # Serve specific files from root
+        path('favicon.ico', serve, {'document_root': react_build_dir, 'path': 'favicon.ico'}),
+        path('favicon.svg', serve, {'document_root': react_build_dir, 'path': 'favicon.svg'}),
+        path('manifest.json', serve, {'document_root': react_build_dir, 'path': 'manifest.json'}),
+        path('robots.txt', serve, {'document_root': react_build_dir, 'path': 'robots.txt'}),
+        path('logo192.png', serve, {'document_root': react_build_dir, 'path': 'logo192.png'}),
+        path('logo512.png', serve, {'document_root': react_build_dir, 'path': 'logo512.png'}),
+        path('service-worker.js', serve, {'document_root': react_build_dir, 'path': 'service-worker.js'}),
+        
         # Serve static files from React build
         re_path(r'^static/(?P<path>.*)$', serve, {'document_root': os.path.join(react_build_dir, 'static')}),
+        
         # Catch all other routes and serve React app
-        re_path(r'^(?!api|admin|static|media|health|metrics).*$', TemplateView.as_view(template_name='index.html'), name='react_app'),
+        re_path(r'^(?!api|admin|static|media|health|metrics|favicon|manifest|robots|logo|service-worker).*$', TemplateView.as_view(template_name='index.html'), name='react_app'),
     ]
 else:
     # Development fallback
