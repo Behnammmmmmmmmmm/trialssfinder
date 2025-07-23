@@ -12,7 +12,7 @@ export interface AuthState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setMockMode: (mockMode: boolean) => void;
-  login: (username: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => void;
   loadUser: () => Promise<void>;
@@ -29,16 +29,14 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
   setError: (error) => set({ error }),
   setMockMode: (mockMode) => set({ mockMode }),
   
-  login: async (username, password) => {
+  login: async (email, password) => {
     set({ loading: true, error: null });
-    
     try {
-      const response = await authAPI.login({ username, password });
+      const response = await authAPI.login({ email, password });
       const { tokens, user } = response.data;
       
       localStorage.setItem('access_token', tokens.access);
       localStorage.setItem('refresh_token', tokens.refresh);
-      
       set({ user, loading: false, mockMode: false });
     } catch (error: any) {
       // In development, allow mock login
@@ -46,8 +44,8 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
         console.warn('Backend not available, using mock login');
         const mockUser: User = {
           id: 1,
-          username: username,
-          email: `${username}@example.com`,
+          username: email.split('@')[0],
+          email: email,
           user_type: 'user',
           email_verified: true,
         };
@@ -62,18 +60,15 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
   
   register: async (data) => {
     set({ loading: true, error: null });
-    
     try {
       const response = await authAPI.register(data);
       const { tokens, user } = response.data;
       
       localStorage.setItem('access_token', tokens.access);
       localStorage.setItem('refresh_token', tokens.refresh);
-      
       if (response.data.verification_token) {
         localStorage.setItem('verification_token', response.data.verification_token);
       }
-      
       set({ user, loading: false, mockMode: false });
     } catch (error: any) {
       // In development, allow mock registration
@@ -81,7 +76,7 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
         console.warn('Backend not available, using mock registration');
         const mockUser: User = {
           id: Date.now(),
-          username: data.username,
+          username: data.email.split('@')[0],
           email: data.email,
           user_type: data.user_type,
           email_verified: false,
@@ -124,7 +119,6 @@ export const createAuthSlice: StateCreator<AppState, [], [], AuthState> = (set) 
     }
     
     set({ loading: true });
-    
     try {
       const response = await authAPI.getMe();
       const user = response.data;
