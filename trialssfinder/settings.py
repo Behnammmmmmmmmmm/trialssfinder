@@ -2,10 +2,9 @@ import os
 import sys
 from datetime import timedelta
 from pathlib import Path
-
 from decouple import config
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths inside the project like this: BASE_DIR / 'subdir'
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -67,9 +66,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             BASE_DIR / 'templates',
-            BASE_DIR / 'trialsfinder' / 'public',  # Add public directory for development
-            BASE_DIR / 'trialsfinder' / 'build',   # For production build
-            BASE_DIR / 'trialsfinder' / 'dist',    # Alternative build directory
+            BASE_DIR / 'trialsfinder' / 'build',  # React build directory
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -133,19 +130,23 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Add static directories
-STATICFILES_DIRS = [
-    BASE_DIR / 'trialsfinder' / 'public',  # Serve from public in development
-]
+# Add static directories - FIXED: Proper path handling
+STATICFILES_DIRS = []
 
-# Check if build/static exists and add it
-build_static = BASE_DIR / 'trialsfinder' / 'build' / 'static'
-if build_static.exists():
-    STATICFILES_DIRS.append(build_static)
+# Add React build static directory if it exists
+react_build_static = BASE_DIR / 'trialsfinder' / 'build' / 'static'
+if react_build_static.exists():
+    STATICFILES_DIRS.append(react_build_static)
 
-# WhiteNoise configuration for development
+# Add public directory for development
+public_dir = BASE_DIR / 'trialsfinder' / 'public'
+if public_dir.exists():
+    STATICFILES_DIRS.append(public_dir)
+
+# WhiteNoise configuration
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = DEBUG
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['map']
 
 # Media files
 MEDIA_URL = '/media/'
@@ -163,27 +164,27 @@ AUTHENTICATION_BACKENDS = [
 
 # REST Framework
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-    ),
+    ],
     'DEFAULT_THROTTLE_CLASSES': [
         'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
+        'rest_framework.throttling.UserRateThrottle',
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/hour',
-        'user': '1000/hour'
+        'user': '1000/hour',
     },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
     'EXCEPTION_HANDLER': 'apps.core.exceptions.custom_exception_handler',
-    'DEFAULT_RENDERER_CLASSES': (
+    'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-    ),
+    ],
 }
 
 # Simple JWT
@@ -209,7 +210,6 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',
@@ -322,7 +322,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '[{levelname}] {asctime} {module} {process:d} {thread:d} {message}',
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
             'style': '{',
         },
         'simple': {
