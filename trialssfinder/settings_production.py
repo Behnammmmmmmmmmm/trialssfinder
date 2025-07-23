@@ -5,12 +5,7 @@ import os
 import logging
 
 import dj_database_url
-import sentry_sdk
 from decouple import config
-from sentry_sdk.integrations.celery import CeleryIntegration
-from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.redis import RedisIntegration
-from sentry_sdk.integrations.logging import LoggingIntegration
 
 from .settings import *
 
@@ -131,84 +126,6 @@ DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="noreply@trialssfinder
 # Logging Configuration
 from .logging_config import LOGGING
 
-# GlitchTip Configuration - Enhanced for Production
-GLITCHTIP_DSN = config("GLITCHTIP_DSN")
-
-def before_send(event, hint):
-    """Filter sensitive data before sending to GlitchTip"""
-    # Filter out sensitive data
-    if 'extra' in event:
-        sensitive_keys = ['password', 'token', 'secret', 'api_key', 'stripe']
-        for key in list(event['extra'].keys()):
-            if any(sensitive in key.lower() for sensitive in sensitive_keys):
-                event['extra'][key] = '[FILTERED]'
-    
-    # Filter request data
-    if 'request' in event:
-        if 'headers' in event['request']:
-            for header in ['Authorization', 'Cookie', 'X-CSRFToken']:
-                if header in event['request']['headers']:
-                    event['request']['headers'][header] = '[FILTERED]'
-        
-        if 'data' in event['request']:
-            for key in list(event['request']['data'].keys()):
-                if any(sensitive in key.lower() for sensitive in ['password', 'token', 'card']):
-                    event['request']['data'][key] = '[FILTERED]'
-    
-    return event
-
-sentry_sdk.init(
-    dsn=GLITCHTIP_DSN,
-    integrations=[
-        DjangoIntegration(
-            transaction_style='function_name',
-            middleware_spans=True,
-            signals_spans=False,
-        ),
-        CeleryIntegration(
-            monitor_beat_tasks=True,
-            propagate_traces=True,
-        ),
-        RedisIntegration(),
-        LoggingIntegration(
-            level=logging.INFO,
-            event_level=logging.ERROR,
-        ),
-    ],
-    traces_sample_rate=0.1,
-    profiles_sample_rate=0.1,
-    send_default_pii=False,
-    environment="production",
-    release=f"trialssfinder@{config('VERSION', default='1.0.0')}",
-    attach_stacktrace=True,
-    request_bodies='medium',
-    with_locals=False,
-    max_breadcrumbs=50,
-    debug=False,
-    before_send=before_send,
-    # Performance monitoring
-    traces_sampler=lambda sampling_context: 0.1 if sampling_context.get('parent_sampled') is True else 0.01,
-    # Additional options
-    shutdown_timeout=5,
-    in_app_include=['apps'],
-    in_app_exclude=['django', 'celery', 'rest_framework'],
-    default_integrations=False,
-    auto_session_tracking=True,
-    send_client_reports=True,
-    # Error filtering
-    ignore_errors=[
-        'Http404',
-        'KeyboardInterrupt',
-        'SystemExit',
-        'DisallowedHost',
-        'PermissionDenied',
-    ],
-)
-
-# Set custom GlitchTip tags
-sentry_sdk.set_tag("server_name", config("SERVER_NAME", default="production"))
-sentry_sdk.set_tag("deployment", config("DEPLOYMENT_ENV", default="production"))
-
 # Additional Production Settings
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=lambda v: [s.strip() for s in v.split(",")])
 
@@ -269,28 +186,25 @@ CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com")
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com")
 CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com")
 CSP_IMG_SRC = ("'self'", "data:", "https:")
-CSP_CONNECT_SRC = ("'self'", "https://api.stripe.com", "https://sentry.io")
+CSP_CONNECT_SRC = ("'self'", "https://api.stripe.com")
 
-# Update logging to include GlitchTip handler
-LOGGING['handlers']['sentry'] = {
-    'level': 'ERROR',
-    'class': 'sentry_sdk.integrations.logging.EventHandler',
-}
+# Update logging to remove sentry handler
+LOGGING['handlers'].pop('sentry', None)
 
 LOGGING['loggers']['django'] = {
-    'handlers': ['console', 'sentry'],
+    'handlers': ['console', 'file'],
     'level': 'INFO',
     'propagate': False,
 }
 
 LOGGING['loggers']['trialssfinder'] = {
-    'handlers': ['console', 'sentry'],
+    'handlers': ['console', 'file'],
     'level': 'INFO',
     'propagate': False,
 }
 
 LOGGING['loggers']['celery'] = {
-    'handlers': ['console', 'sentry'],
+    'handlers': ['console', 'file'],
     'level': 'INFO',
     'propagate': False,
 }
