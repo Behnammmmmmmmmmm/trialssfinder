@@ -14,11 +14,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 import psutil
 
-try:
-    from sentry_sdk import capture_message
-except ImportError:
-    capture_message = None
-
 logger = logging.getLogger("trialssfinder")
 
 
@@ -48,10 +43,6 @@ def health_check(request):
         )
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
-        
-        # Send to Sentry if available
-        if capture_message:
-            capture_message(f"Health check failed: {str(e)}", level="error")
         
         return JsonResponse(
             {"status": "unhealthy", "error": str(e) if settings.DEBUG else "Service unavailable"}, status=503
@@ -134,10 +125,6 @@ def metrics(request):
     except Exception as e:
         logger.error(f"Metrics endpoint error: {str(e)}")
         
-        # Send to Sentry if available
-        if capture_message:
-            capture_message(f"Metrics endpoint error: {str(e)}", level="error")
-        
         return JsonResponse({"error": "Failed to collect metrics"}, status=500)
 
 
@@ -162,18 +149,6 @@ def client_logs(request):
 
             if level == "ERROR":
                 logger.error(f"Client error: {message}", extra=context)
-                
-                # Send client errors to Sentry
-                if capture_message:
-                    capture_message(
-                        f"Client error: {message}",
-                        level="error",
-                        extra={
-                            **context,
-                            "user": request.user.username,
-                            "client_ip": log_entry["client_ip"],
-                        }
-                    )
             elif level == "WARN":
                 logger.warning(f"Client warning: {message}", extra=context)
             else:
@@ -197,27 +172,7 @@ def csrf_failure(request, reason=""):
         },
     )
     
-    # Send CSRF failures to Sentry
-    if capture_message:
-        capture_message(
-            f"CSRF failure: {reason}",
-            level="warning",
-            extra={
-                "path": request.path,
-                "user": request.user.username if request.user.is_authenticated else "anonymous",
-                "referer": request.META.get("HTTP_REFERER", "No referer"),
-            }
-        )
-    
     return JsonResponse(
         {"error": {"code": "csrf_failure", "message": "CSRF verification failed. Please refresh and try again."}},
         status=403,
     )
-
-
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def test_sentry(request):
-    """Test Sentry integration - REMOVE IN PRODUCTION"""
-    # This will create a test error in Sentry
-    raise Exception("This is a test error for Sentry")
