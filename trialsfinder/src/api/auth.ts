@@ -1,4 +1,4 @@
-import { api } from '../utils/api';
+import { default as api } from '../utils/api';
 
 interface RegisterData {
   email: string;
@@ -19,10 +19,10 @@ interface ResetPasswordData {
 }
 
 export const authAPI = {
-  register: (data: RegisterData) => api.post('/auth/register/', data),
-  login: (data: LoginData) => api.post('/auth/login/', data),
-  verifyEmail: (token: string) => api.post('/auth/verify-email/', { token }),
-  forgotPassword: (email: string) => api.post('/auth/forgot-password/', { email }),
-  resetPassword: (data: ResetPasswordData) => api.post('/auth/reset-password/', data),
-  getMe: () => api.get('/auth/me/'),
+  register: (data: RegisterData) => api.post('/auth/register', data),
+  login: (data: LoginData) => api.post('/auth/login', data),
+  verifyEmail: (token: string) => api.post('/auth/verify-email', { token }),
+  forgotPassword: (email: string) => api.post('/auth/forgot-password', { email }),
+  resetPassword: (data: ResetPasswordData) => api.post('/auth/reset-password', data),
+  getMe: () => api.get('/auth/me'),
 };
