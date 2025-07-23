@@ -1,0 +1,1 @@
+(self.webpackChunktrialsfinder=self.webpackChunktrialsfinder||[]).push([[372],{2372:(e,l,d)=>{d.r(l),d.d(l,{FAQPage:()=>r,default:()=>n}),d(5299);var i=d(2240);const r=()=>(0,i.FD)("div",{children:[(0,i.Y)("h1",{children:"FAQ"}),(0,i.Y)("p",{children:"Frequently asked questions will be displayed here."})]}),n=r}}]);
