@@ -6,9 +6,6 @@ from .settings import *
 # Override settings for development
 DEBUG = True
 
-# Override the GLITCHTIP_DSN with your actual DSN
-GLITCHTIP_DSN = config("GLITCHTIP_DSN", default="")
-
 # Add cache headers middleware FIRST
 MIDDLEWARE = [
     'django.middleware.cache.UpdateCacheMiddleware',  # Must be first
@@ -96,40 +93,4 @@ TEMPLATES = [
     },
 ]
 
-# Force GlitchTip initialization for development
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.celery import CeleryIntegration
-from sentry_sdk.integrations.redis import RedisIntegration
-from sentry_sdk.integrations.logging import LoggingIntegration
-import logging
-
-# Re-initialize GlitchTip with correct DSN
-if GLITCHTIP_DSN:
-    sentry_sdk.init(
-        dsn=GLITCHTIP_DSN,
-        integrations=[
-            DjangoIntegration(
-                transaction_style='function_name',
-                middleware_spans=True,
-            ),
-            CeleryIntegration(
-                monitor_beat_tasks=True,
-            ),
-            RedisIntegration(),
-            LoggingIntegration(
-                level=logging.INFO,
-                event_level=logging.ERROR,
-            ),
-        ],
-        traces_sample_rate=0.1,
-        send_default_pii=True,
-        environment="development",
-        release=f"trialssfinder@{VERSION}",
-        attach_stacktrace=True,
-        max_breadcrumbs=50,
-        debug=True,  # Enable debug mode to see Sentry logs
-    )
-
 print("Using optimized development settings for performance testing")
-print(f"GlitchTip DSN configured: {GLITCHTIP_DSN[:50] if GLITCHTIP_DSN else 'Not configured'}...")
