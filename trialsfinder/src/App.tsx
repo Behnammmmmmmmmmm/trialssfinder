@@ -1,8 +1,8 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import ErrorBoundary from './components/ErrorBoundary';
-import Layout from './components/Layout';
-import AppProvider from './context/AppContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { Layout } from './components/Layout';
+import { AppProvider } from './context/AppContext';
 
 // Preload critical page
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -18,7 +18,7 @@ const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
 const CompanyDashboardPage = lazy(() => import('./pages/CompanyDashboardPage'));
 const PrivateRoute = lazy(() => import('./components/PrivateRoute').then(m => ({ default: m.PrivateRoute })));
 
-// Group less used pages together to reduce chunks
+// Group less-used pages together to reduce chunks
 const CreateTrialPage = lazy(() => import('./pages/CreateTrialPage'));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
 const SubscriptionPage = lazy(() => import('./pages/SubscriptionPage'));
