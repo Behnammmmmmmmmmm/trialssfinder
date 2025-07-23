@@ -5,8 +5,21 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.generic import TemplateView
 from django.views.static import serve
+from django.http import HttpResponse
 
 from apps.core.views import health_check, metrics
+
+def serve_react_app(request, path=''):
+    """Serve the React app index.html directly"""
+    try:
+        react_index = os.path.join(settings.BASE_DIR, 'trialsfinder', 'dist', 'index.html')
+        with open(react_index, 'r', encoding='utf-8') as f:
+            return HttpResponse(f.read(), content_type='text/html')
+    except:
+        # Fallback to template if React build doesn't exist
+        from django.template import loader
+        template = loader.get_template('fallback.html')
+        return HttpResponse(template.render({}, request))
 
 urlpatterns = [
     # Admin - only include once
@@ -32,7 +45,6 @@ urlpatterns = [
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Check for React build
 react_build_dir = os.path.join(settings.BASE_DIR, 'trialsfinder', 'dist')
@@ -53,8 +65,8 @@ if os.path.exists(react_build_dir) and os.path.exists(react_index_html):
         # Serve static files from React build
         re_path(r'^static/(?P<path>.*)$', serve, {'document_root': os.path.join(react_build_dir, 'static')}),
         
-        # Catch all other routes and serve React app
-        re_path(r'^(?!api|admin|static|media|health|metrics|favicon|manifest|robots|logo|service-worker).*$', TemplateView.as_view(template_name='index.html'), name='react_app'),
+        # Catch all other routes and serve React app directly (not as template)
+        re_path(r'^(?!api|admin|static|media|health|metrics|favicon|manifest|robots|logo|service-worker).*$', serve_react_app, name='react_app'),
     ]
 else:
     # Development fallback
