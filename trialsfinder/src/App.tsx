@@ -34,7 +34,7 @@ const PrivacyDashboard = lazy(() => import('./pages/PrivacyDashboard'));
 // Minimal loading component
 const PageLoading = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-    <div className="spinner" />
+    <div className="spinner"></div>
   </div>
 );
 
@@ -51,6 +51,7 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/trials/:id" element={<TrialDetailsPage />} />
                 <Route path="/search" element={<SearchResultsPage />} />
+                
                 <Route path="/profile" element={
                   <Suspense fallback={<PageLoading />}>
                     <PrivateRoute userType="user">
@@ -58,6 +59,7 @@ function App() {
                     </PrivateRoute>
                   </Suspense>
                 } />
+                
                 <Route path="/dashboard" element={
                   <Suspense fallback={<PageLoading />}>
                     <PrivateRoute userType="company">
@@ -65,6 +67,7 @@ function App() {
                     </PrivateRoute>
                   </Suspense>
                 } />
+                
                 <Route path="/create-trial" element={
                   <Suspense fallback={<PageLoading />}>
                     <PrivateRoute userType="company">
@@ -72,6 +75,7 @@ function App() {
                     </PrivateRoute>
                   </Suspense>
                 } />
+                
                 <Route path="/analytics" element={
                   <Suspense fallback={<PageLoading />}>
                     <PrivateRoute userType="company">
@@ -79,12 +83,14 @@ function App() {
                     </PrivateRoute>
                   </Suspense>
                 } />
+                
                 <Route path="/subscription" element={<SubscriptionPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/faq" element={<FAQPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
+                
                 <Route path="/privacy-dashboard" element={
                   <Suspense fallback={<PageLoading />}>
                     <PrivateRoute>
