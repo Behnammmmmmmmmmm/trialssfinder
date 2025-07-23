@@ -7,7 +7,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleUsernameClick = () => {
+  const handleUserClick = () => {
     if (user?.user_type === 'company') {
       navigate('/dashboard');
     } else if (user?.user_type === 'admin') {
@@ -25,13 +25,15 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const handleKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      handleUsernameClick();
+      handleUserClick();
     }
   };
 
   return (
     <div className="page-container">
-      <a href="#main" className="skip-link">Skip to main content</a>
+      <a href="#main" className="skip-link">
+        Skip to main content
+      </a>
       
       <header className="header" role="banner">
         <div className="header-container container">
@@ -45,18 +47,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             {user ? (
               <div className="flex items-center gap-4">
                 <button
-                  onClick={handleUsernameClick}
+                  onClick={handleUserClick}
                   onKeyPress={handleKeyPress}
                   className="cursor-pointer text-primary font-medium transition-colors hover:text-primary-dark focus:outline-2 focus:outline-primary focus:outline-offset-2 px-2 py-1 rounded"
-                  aria-label={`User menu for ${user.username}`}
+                  aria-label={`User menu for ${user.email}`}
                 >
-                  {user.username}
+                  {user.email}
                 </button>
-                <Link
-                  to="/privacy-dashboard"
-                  className="header-nav-item"
-                  aria-label="Privacy Settings"
-                >
+                <Link to="/privacy-dashboard" className="header-nav-item" aria-label="Privacy Settings">
                   Privacy Settings
                 </Link>
                 <button
@@ -71,20 +69,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               </div>
             ) : (
               <div className="flex items-center gap-4">
-                <Link
-                  to="/login"
-                  className="header-nav-item"
-                  aria-label="Login to your account"
-                >
+                <Link to="/login" className="header-nav-item" aria-label="Login to your account">
                   Login
                 </Link>
-                <Link
-                  to="/register"
-                  className="btn"
-                  data-variant="primary"
-                  data-size="sm"
-                  aria-label="Create a new account"
-                >
+                <Link to="/register" className="btn" data-variant="primary" data-size="sm" aria-label="Create a new account">
                   Register
                 </Link>
               </div>
@@ -92,13 +80,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </nav>
         </div>
       </header>
-
+      
       <main id="main" className="main-content" role="main">
-        <div className="container">
-          {children}
-        </div>
+        <div className="container">{children}</div>
       </main>
-
+      
       <footer className="footer" role="contentinfo">
         <div className="container">
           <div className="footer-content">
@@ -106,9 +92,21 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <h2 id="footer-resources">Resources</h2>
               <nav aria-labelledby="footer-resources">
                 <ul className="footer-links" role="list">
-                  <li><Link to="/faq" className="footer-link">FAQ</Link></li>
-                  <li><Link to="/contact" className="footer-link">Contact</Link></li>
-                  <li><Link to="/about" className="footer-link">About</Link></li>
+                  <li>
+                    <Link to="/faq" className="footer-link">
+                      FAQ
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/contact" className="footer-link">
+                      Contact
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/about" className="footer-link">
+                      About
+                    </Link>
+                  </li>
                 </ul>
               </nav>
             </div>
@@ -117,8 +115,16 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <h2 id="footer-legal">Legal</h2>
               <nav aria-labelledby="footer-legal">
                 <ul className="footer-links" role="list">
-                  <li><Link to="/terms" className="footer-link">Terms</Link></li>
-                  <li><Link to="/privacy" className="footer-link">Privacy</Link></li>
+                  <li>
+                    <Link to="/terms" className="footer-link">
+                      Terms
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/privacy" className="footer-link">
+                      Privacy
+                    </Link>
+                  </li>
                 </ul>
               </nav>
             </div>
