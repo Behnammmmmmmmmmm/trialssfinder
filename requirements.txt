@@ -6,7 +6,6 @@ python-decouple==3.8
 django-ratelimit==4.1.0
 django-redis==5.4.0
 redis==5.0.1
-# hiredis==2.2.3  # Comment out or remove - optional Redis performance package
 celery==5.3.4
 django-celery-beat==2.5.0
 django-celery-results==2.5.1
@@ -27,4 +26,3 @@ python-dateutil==2.8.2
 pytz==2023.3
 dj-database-url==2.1.0
 django-csp==3.7
-sentry-sdk==2.21.2
