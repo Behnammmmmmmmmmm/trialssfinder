@@ -2,7 +2,6 @@ import os
 import sys
 from datetime import timedelta
 from pathlib import Path
-
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -14,7 +13,10 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-dev-key-change-in-pro
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',') if s.strip()])
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0', cast=lambda v: [s.strip() for s in v.split(',') if s.strip()])
+
+# Force trailing slashes on URLs
+APPEND_SLASH = True
 
 # Application definition
 INSTALLED_APPS = [
@@ -97,7 +99,7 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'unique-snowflake',
         'OPTIONS': {
-            'MAX_ENTRIES': 1000
+            'MAX_ENTRIES': 1000,
         }
     }
 }
@@ -136,12 +138,18 @@ STATICFILES_DIRS = []
 
 # React build directories
 react_build_dir = BASE_DIR / 'trialsfinder' / 'dist'
+react_public_dir = BASE_DIR / 'trialsfinder' / 'public'
+
 if react_build_dir.exists():
     STATICFILES_DIRS.append(react_build_dir)
     # Also add the static subdirectory from React build
     react_build_static = react_build_dir / 'static'
     if react_build_static.exists():
         STATICFILES_DIRS.append(react_build_static)
+
+# Add public directory for serving logo files
+if react_public_dir.exists():
+    STATICFILES_DIRS.append(react_public_dir)
 
 # WhiteNoise configuration
 WHITENOISE_USE_FINDERS = True
@@ -160,10 +168,10 @@ AUTH_USER_MODEL = 'authentication.User'
 
 # REST Framework settings
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    ),
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
@@ -173,11 +181,11 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/hour',
-        'user': '1000/hour'
+        'user': '1000/hour',
     },
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
-    'EXCEPTION_HANDLER': 'apps.core.exceptions.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'apps.core.exceptions.custom_exception_handler',
 }
 
 # Simple JWT
@@ -227,12 +235,12 @@ CORS_ALLOW_HEADERS = [
 
 # CSRF configuration
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://localhost:8000',
-    'http://127.0.0.1:8000',
-    'http://localhost:8080',
-    'http://127.0.0.1:8080',
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
 ]
 
 # Security headers
@@ -283,7 +291,7 @@ EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@trialssfinder.com')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@trialsfinder.com')
 
 # Site configuration
 SITE_URL = config('SITE_URL', default='http://localhost:8080')
