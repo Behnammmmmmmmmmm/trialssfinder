@@ -1,8 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
 import { useAuth } from '../hooks/useStore';
-
 import { LanguageSelector } from './LanguageSelector';
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -43,9 +41,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           
           <nav className="header-nav" role="navigation" aria-label="Main navigation">
             <LanguageSelector />
+            
             {user ? (
               <div className="flex items-center gap-4">
-                <button 
+                <button
                   onClick={handleUsernameClick}
                   onKeyPress={handleKeyPress}
                   className="cursor-pointer text-primary font-medium transition-colors hover:text-primary-dark focus:outline-2 focus:outline-primary focus:outline-offset-2 px-2 py-1 rounded"
@@ -53,16 +52,16 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 >
                   {user.username}
                 </button>
-                <Link 
-                  to="/privacy-dashboard" 
+                <Link
+                  to="/privacy-dashboard"
                   className="header-nav-item"
                   aria-label="Privacy Settings"
                 >
                   Privacy Settings
                 </Link>
-                <button 
-                  onClick={handleLogout} 
-                  className="btn" 
+                <button
+                  onClick={handleLogout}
+                  className="btn"
                   data-variant="ghost"
                   data-size="sm"
                   aria-label="Sign out of your account"
@@ -72,10 +71,20 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               </div>
             ) : (
               <div className="flex items-center gap-4">
-                <Link to="/login" className="header-nav-item" aria-label="Login to your account">
+                <Link
+                  to="/login"
+                  className="header-nav-item"
+                  aria-label="Login to your account"
+                >
                   Login
                 </Link>
-                <Link to="/register" className="btn" data-variant="primary" data-size="sm" aria-label="Create a new account">
+                <Link
+                  to="/register"
+                  className="btn"
+                  data-variant="primary"
+                  data-size="sm"
+                  aria-label="Create a new account"
+                >
                   Register
                 </Link>
               </div>
@@ -83,13 +92,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </nav>
         </div>
       </header>
-      
+
       <main id="main" className="main-content" role="main">
         <div className="container">
           {children}
         </div>
       </main>
-      
+
       <footer className="footer" role="contentinfo">
         <div className="container">
           <div className="footer-content">
@@ -103,6 +112,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 </ul>
               </nav>
             </div>
+            
             <div className="footer-section">
               <h2 id="footer-legal">Legal</h2>
               <nav aria-labelledby="footer-legal">
@@ -113,6 +123,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               </nav>
             </div>
           </div>
+          
           <div className="footer-bottom">
             <p className="text-muted text-sm">© 2024 TrialsFinder. All rights reserved.</p>
           </div>
@@ -121,3 +132,5 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     </div>
   );
 };
+
+export default Layout;
