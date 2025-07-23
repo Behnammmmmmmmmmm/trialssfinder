@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunktrialssfinder=self.webpackChunktrialssfinder||[]).push([[249],{7249:(e,s,r)=>{r.r(s),r.d(s,{PaymentSuccessPage:()=>i,default:()=>u});var n=r(5043),t=r(3216),c=r(579);const i=()=>{const e=(0,t.Zp)();return(0,n.useEffect)(()=>{setTimeout(()=>{e("/dashboard")},1500)},[e]),(0,c.jsxs)("div",{children:[(0,c.jsx)("h1",{children:"\ud83c\udf89 Payment Successful!"}),(0,c.jsx)("p",{children:"Your trial is now under review."})]})},u=i}}]);
-//# sourceMappingURL=249.48cae992.chunk.js.map
