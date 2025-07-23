@@ -8,12 +8,12 @@ module.exports = {
         'custom-media-queries': true,
         'nesting-rules': true,
         'focus-visible-pseudo-class': true,
-        'prefers-color-scheme-query': true,
+        'prefers-color-scheme-query': true
       },
       autoprefixer: {
         grid: 'autoplace'
       }
     }),
     require('autoprefixer')
-  ],
+  ]
 };
