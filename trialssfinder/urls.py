@@ -9,7 +9,7 @@ from django.views.static import serve
 from apps.core.views import health_check, metrics
 
 urlpatterns = [
-    # Admin
+    # Admin - only include once
     path('admin/', admin.site.urls),
     
     # Health and monitoring endpoints
@@ -21,7 +21,6 @@ urlpatterns = [
     path('api/auth/', include('apps.authentication.urls')),
     path('api/companies/', include('apps.companies.urls')),
     path('api/trials/', include('apps.trials.urls')),
-    path('api/industries/', include('apps.trials.urls')),
     path('api/subscriptions/', include('apps.subscriptions.urls')),
     path('api/analytics/', include('apps.analytics.urls')),
     path('api/notifications/', include('apps.notifications.urls')),
