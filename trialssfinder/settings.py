@@ -130,11 +130,16 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Add static directories - FIXED: Proper path handling
+# Add static directories
 STATICFILES_DIRS = []
 
-# Add React build static directory if it exists
-react_build_static = BASE_DIR / 'trialsfinder' / 'build' / 'static'
+# Add React build directory
+react_build_dir = BASE_DIR / 'trialsfinder' / 'build'
+if react_build_dir.exists():
+    STATICFILES_DIRS.append(react_build_dir)
+
+# Also add the static subdirectory from React build
+react_build_static = react_build_dir / 'static'
 if react_build_static.exists():
     STATICFILES_DIRS.append(react_build_static)
 
@@ -147,6 +152,7 @@ if public_dir.exists():
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = DEBUG
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['map']
+WHITENOISE_MANIFEST_STRICT = False  # Important: Don't fail on missing files
 
 # Media files
 MEDIA_URL = '/media/'
@@ -157,12 +163,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom user model
 AUTH_USER_MODEL = 'authentication.User'
 
-# Authentication backends configuration
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-]
-
-# REST Framework
+# REST Framework settings (keeping the rest of your configuration)
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
