@@ -258,11 +258,13 @@ module.exports = (env, argv) => {
     plugins: [
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
+        'process.env.PUBLIC_URL': JSON.stringify(''),
       }),
       new HtmlWebpackPlugin({
         template: './public/index.html',
         inject: 'body',
         scriptLoading: 'defer',
+        publicPath: '/',
         minify: isProduction
           ? {
               removeComments: true,
@@ -277,6 +279,9 @@ module.exports = (env, argv) => {
               minifyURLs: true,
             }
           : false,
+        templateParameters: {
+          PUBLIC_URL: '',
+        },
       }),
       new MiniCssExtractPlugin({
         filename: isProduction ? 'static/css/[name].[contenthash:8].css' : 'static/css/[name].css',
@@ -287,13 +292,6 @@ module.exports = (env, argv) => {
           {
             from: 'public',
             to: '',
-            globOptions: {
-              ignore: ['**/index.html'],
-            },
-          },
-          {
-            from: 'public',
-            to: 'static',
             globOptions: {
               ignore: ['**/index.html'],
             },
