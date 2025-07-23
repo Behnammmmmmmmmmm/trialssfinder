@@ -1,0 +1,1 @@
+(self.webpackChunktrialsfinder=self.webpackChunktrialsfinder||[]).push([[679],{679:(e,a,i)=>{i.r(a),i.d(a,{AboutPage:()=>n,default:()=>r}),i(5299);var l=i(2240);const n=()=>(0,l.FD)("div",{children:[(0,l.Y)("h1",{children:"About Us"}),(0,l.Y)("p",{children:"Information about the company will be displayed here."})]}),r=n}}]);

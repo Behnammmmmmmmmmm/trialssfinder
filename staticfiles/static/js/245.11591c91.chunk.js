@@ -1,0 +1,1 @@
+(self.webpackChunktrialsfinder=self.webpackChunktrialsfinder||[]).push([[245],{6245:(e,r,d)=>{d.r(r),d.d(r,{TermsPage:()=>s,default:()=>l}),d(5299);var i=d(2240);const s=()=>(0,i.FD)("div",{children:[(0,i.Y)("h1",{children:"Terms of Use"}),(0,i.Y)("p",{children:"Terms and conditions will be displayed here."})]}),l=s}}]);
