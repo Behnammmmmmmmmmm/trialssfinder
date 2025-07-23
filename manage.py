@@ -4,9 +4,8 @@ import os
 import sys
 
 if __name__ == '__main__':
-    # Use optimized settings for development
+    """Use optimized settings for development"""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'trialssfinder.settings')
-    
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
