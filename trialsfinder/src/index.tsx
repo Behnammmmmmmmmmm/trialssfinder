@@ -3,12 +3,13 @@ import ReactDOM from 'react-dom/client';
 
 // Get root element
 const rootElement = document.getElementById('root');
+
 if (!rootElement) {
   console.error('Failed to find the root element');
   throw new Error('Failed to find the root element');
 }
 
-console.log('Root element found, creating React root...');
+console.log('Root element found, creating React root');
 
 // Create root
 const root = ReactDOM.createRoot(rootElement);
@@ -22,7 +23,13 @@ root.render(
 );
 
 // Load styles
-import('./styles/index.css').catch(console.error);
+try {
+  import('./styles/index.css').catch(() => {
+    console.error('Failed to load styles');
+  });
+} catch {
+  // Styles might not be available yet
+}
 
 // Load the app
 setTimeout(() => {
@@ -36,7 +43,7 @@ setTimeout(() => {
         </React.StrictMode>
       );
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Failed to load app:', error);
       root.render(
         <div style={{ padding: '20px', color: 'red' }}>
