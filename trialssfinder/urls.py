@@ -14,7 +14,7 @@ def trigger_error(request):
     division_by_zero = 1 / 0
 
 urlpatterns = [
-    # Admin - removed duplicate namespace
+    # Admin
     path('admin/', admin.site.urls),
     
     # Sentry debug endpoint
@@ -38,29 +38,30 @@ urlpatterns = [
     path('api/payments/', include('apps.payments.urls')),
 ]
 
-# Serve media files in development
+# Serve static and media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    # Serve static files manually in development
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     
-    # Also serve from build directory if it exists
+    # Also serve static files from the build directory directly
     build_dir = os.path.join(settings.BASE_DIR, 'trialsfinder', 'build')
     if os.path.exists(build_dir):
+        # Serve static files from build/static
         urlpatterns += [
-            re_path(r'^static/(?P<path>.*)$', serve, {'document_root': os.path.join(build_dir, 'static')}),
+            re_path(r'^static/(?P<path>.*)$', serve, {
+                'document_root': os.path.join(build_dir, 'static'),
+            }),
+            # Serve other files from build root (like favicon.svg, manifest.json)
+            re_path(r'^(?P<path>favicon\.svg|manifest\.json|robots\.txt|service-worker\.js)$', serve, {
+                'document_root': build_dir,
+            }),
         ]
 
 # Serve React app
 # Check for React build
-react_index_paths = [
-    os.path.join(settings.BASE_DIR, 'trialsfinder', 'build', 'index.html'),
-    os.path.join(settings.BASE_DIR, 'trialsfinder', 'dist', 'index.html'),
-]
+react_index_path = os.path.join(settings.BASE_DIR, 'trialsfinder', 'build', 'index.html')
 
-react_index_exists = any(os.path.exists(path) for path in react_index_paths)
-
-if react_index_exists:
+if os.path.exists(react_index_path):
     # Serve index.html for all non-API routes
     urlpatterns += [
         re_path(r'^(?!api/|admin/|static/|media/|health/|metrics/|sentry-debug/).*$', 
@@ -69,12 +70,13 @@ if react_index_exists:
 else:
     # Development fallback
     fallback_template_path = os.path.join(settings.BASE_DIR, 'templates', 'fallback.html')
-    if not os.path.exists(os.path.dirname(fallback_template_path)):
-        os.makedirs(os.path.dirname(fallback_template_path))
+    
+    # Create templates directory if it doesn't exist
+    os.makedirs(os.path.dirname(fallback_template_path), exist_ok=True)
     
     # Create fallback template if it doesn't exist
     if not os.path.exists(fallback_template_path):
-        with open(fallback_template_path, 'w') as f:
+        with open(fallback_template_path, 'w', encoding='utf-8') as f:
             f.write('''<!DOCTYPE html>
 <html lang="en">
 <head>
