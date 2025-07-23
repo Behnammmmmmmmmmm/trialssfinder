@@ -23,7 +23,9 @@ class User(AbstractUser):
         max_length=150,
         unique=True,
         null=True,
-        blank=True
+        blank=True,
+        help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+        validators=[],  # Remove validators if needed
     )
     
     # Make email required and unique
