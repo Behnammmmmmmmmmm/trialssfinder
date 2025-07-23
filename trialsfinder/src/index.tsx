@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-// Critical CSS only
+// Critical CSS only - this will be bundled by webpack
 import './styles/critical.css';
+import './styles/index.css';
 
 // Get root element
 const rootElement = document.getElementById('root');
@@ -24,9 +25,7 @@ root.render(
 // Load the app asynchronously
 (async () => {
   try {
-    // Load remaining CSS
     const { default: App } = await import('./App');
-    await import('./styles/index.css');
     
     // Render full app
     root.render(
@@ -34,7 +33,7 @@ root.render(
         <App />
       </React.StrictMode>
     );
-    
+
     // Register service worker with proper cleanup
     if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
       window.addEventListener('load', () => {
@@ -57,4 +56,4 @@ window.addEventListener('pagehide', () => {
 });
 
 // Avoid using unload event which prevents bfcache
-// window.addEventListener('unload', ...) // DON'T USE THIS
+// window.addEventListener('unload', () => {}); // DON'T USE THIS
