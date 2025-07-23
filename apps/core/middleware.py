@@ -20,11 +20,6 @@ from django.utils.cache import (
 )
 from django.utils.deprecation import MiddlewareMixin
 
-try:
-    from sentry_sdk import add_breadcrumb, set_tag, set_user
-except ImportError:
-    add_breadcrumb = set_tag = set_user = None
-
 logger = logging.getLogger("trialssfinder.requests")
 
 
@@ -183,67 +178,3 @@ class ETAGMiddleware(MiddlewareMixin):
             response['ETag'] = etag
         
         return response
-
-
-class SentryContextMiddleware(MiddlewareMixin):
-    """Add context to Sentry for better error tracking."""
-    
-    def process_request(self, request):
-        # Skip if Sentry not available
-        if not add_breadcrumb:
-            return None
-        
-        # Add breadcrumb for request
-        add_breadcrumb(
-            category='request',
-            message=f'{request.method} {request.path}',
-            level='info',
-            data={
-                'method': request.method,
-                'path': request.path,
-                'query_string': request.META.get('QUERY_STRING', ''),
-                'content_type': request.content_type,
-            }
-        )
-        
-        # Set user context if authenticated
-        if hasattr(request, 'user') and request.user.is_authenticated:
-            set_user({
-                'id': request.user.id,
-                'username': request.user.username,
-                'email': request.user.email,
-            })
-        
-        # Set additional tags
-        set_tag('ip_address', self.get_client_ip(request))
-        set_tag('http.method', request.method)
-        set_tag('http.path', request.path)
-        
-        return None
-    
-    def process_response(self, request, response):
-        # Skip if Sentry not available
-        if not add_breadcrumb:
-            return response
-        
-        # Add breadcrumb for response
-        add_breadcrumb(
-            category='response',
-            message=f'{response.status_code} response',
-            level='info',
-            data={
-                'status_code': response.status_code,
-                'content_type': response.get('Content-Type', ''),
-            }
-        )
-        
-        # Set response status tag
-        set_tag('http.status_code', response.status_code)
-        
-        return response
-    
-    def get_client_ip(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            return x_forwarded_for.split(',')[0].strip()
-        return request.META.get('REMOTE_ADDR', '')
