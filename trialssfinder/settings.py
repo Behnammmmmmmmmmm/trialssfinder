@@ -59,7 +59,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.core.middleware.SecurityHeadersMiddleware",
     "apps.core.middleware.CacheControlMiddleware",
-    'apps.core.middleware.SentryContextMiddleware',  # Add Sentry middleware
     'django.middleware.cache.FetchFromCacheMiddleware',  # Cache middleware last
 ]
 
@@ -371,6 +370,11 @@ ELASTICSEARCH_INDEX = config("ELASTICSEARCH_INDEX", default="trialssfinder")
 # Consent version
 CONSENT_VERSION = config("CONSENT_VERSION", default="1.0")
 
+# Version info
+VERSION = config("VERSION", default="1.0.0")
+SERVER_NAME = config("SERVER_NAME", default="development")
+DEPLOYMENT_ENV = config("DEPLOYMENT_ENV", default="development")
+
 # Logging
 import logging
 
@@ -397,11 +401,6 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
         },
-        "sentry": {
-            "level": "ERROR",
-            "class": "sentry_sdk.integrations.logging.EventHandler",
-            "filters": ["require_debug_false"],
-        },
     },
     "root": {
         "handlers": ["console"],
@@ -419,62 +418,12 @@ LOGGING = {
             "propagate": False,
         },
         "trialssfinder": {
-            "handlers": ["console", "sentry"] if not DEBUG else ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-        "sentry_sdk": {
-            "level": "ERROR",
             "handlers": ["console"],
+            "level": "INFO",
             "propagate": False,
         },
     },
 }
-
-# GlitchTip Configuration (replacing Sentry)
-GLITCHTIP_DSN = config("GLITCHTIP_DSN", default="")
-VERSION = config("VERSION", default="1.0.0")
-SERVER_NAME = config("SERVER_NAME", default="development")
-DEPLOYMENT_ENV = config("DEPLOYMENT_ENV", default="development")
-
-# Initialize GlitchTip if DSN is provided
-if GLITCHTIP_DSN:
-    try:
-        import sentry_sdk
-        from sentry_sdk.integrations.django import DjangoIntegration
-        from sentry_sdk.integrations.celery import CeleryIntegration
-        from sentry_sdk.integrations.redis import RedisIntegration
-        from sentry_sdk.integrations.logging import LoggingIntegration
-
-        sentry_sdk.init(
-            dsn=GLITCHTIP_DSN,
-            integrations=[
-                DjangoIntegration(
-                    transaction_style='function_name',
-                    middleware_spans=True,
-                ),
-                CeleryIntegration(
-                    monitor_beat_tasks=True,
-                ),
-                RedisIntegration(),
-                LoggingIntegration(
-                    level=logging.INFO,
-                    event_level=logging.ERROR,
-                ),
-            ],
-            traces_sample_rate=0.1,
-            send_default_pii=False,
-            environment=DEPLOYMENT_ENV,
-            release=f"trialssfinder@{VERSION}",
-            attach_stacktrace=True,
-            max_breadcrumbs=50,
-            debug=False,
-        )
-        print(f"GlitchTip initialized for environment: {DEPLOYMENT_ENV}")
-    except ImportError:
-        print("Sentry SDK not installed. Run: pip install sentry-sdk")
-    except Exception as e:
-        print(f"Failed to initialize GlitchTip: {str(e)}")
 
 # Additional performance settings
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
