@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-
 import { useAuth } from '../hooks/useStore';
 
 const LoginPage: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,16 +14,16 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+
     try {
-      await login(username, password);
+      await login(email, password);
       if (user?.user_type === 'company') {
         navigate('/dashboard');
       } else {
         navigate('/profile');
       }
     } catch (error) {
-      setError('Invalid credentials. Please try again.');
+      setError('Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -36,30 +35,34 @@ const LoginPage: React.FC = () => {
         <div className="card-body">
           <h1 className="text-3xl font-bold text-center mb-6">Welcome Back</h1>
           <p className="text-center text-muted mb-6">Sign in to your account</p>
-          
+
           {error && (
             <div className="alert mb-4" data-variant="danger">
               {error}
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="username" className="form-label">Username</label>
+              <label htmlFor="email" className="form-label">
+                Email
+              </label>
               <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
                 className="form-control"
                 required
                 disabled={loading}
               />
             </div>
-            
+
             <div className="form-group">
-              <label htmlFor="password" className="form-label">Password</label>
+              <label htmlFor="password" className="form-label">
+                Password
+              </label>
               <input
                 id="password"
                 type="password"
@@ -71,10 +74,10 @@ const LoginPage: React.FC = () => {
                 disabled={loading}
               />
             </div>
-            
-            <button 
-              type="submit" 
-              className="btn w-full mb-4" 
+
+            <button
+              type="submit"
+              className="btn w-full mb-4"
               data-variant="primary"
               data-size="lg"
               disabled={loading}
@@ -89,15 +92,15 @@ const LoginPage: React.FC = () => {
               )}
             </button>
           </form>
-          
+
           <div className="text-center">
             <Link to="/forgot-password" className="text-primary hover:underline">
               Forgot Password?
             </Link>
           </div>
-          
+
           <hr className="my-6" />
-          
+
           <div className="text-center">
             <p className="text-muted mb-2">Don&apos;t have an account?</p>
             <Link to="/register" className="btn" data-variant="outline">
