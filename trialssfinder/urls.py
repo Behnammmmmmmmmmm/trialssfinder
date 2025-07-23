@@ -20,6 +20,15 @@ def serve_react_app(request, path=''):
         template = loader.get_template('fallback.html')
         return HttpResponse(template.render({}, request))
 
+def serve_locales(request, lang, filename):
+    """Serve locale files"""
+    locale_path = os.path.join(settings.BASE_DIR, 'trialsfinder', 'public', 'locales', lang, filename)
+    try:
+        with open(locale_path, 'r', encoding='utf-8') as f:
+            return HttpResponse(f.read(), content_type='application/json')
+    except:
+        return HttpResponse('{}', content_type='application/json')
+
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
@@ -43,15 +52,6 @@ urlpatterns = [
     # Locales endpoint
     path('locales/<str:lang>/<str:filename>', serve_locales, name='serve_locales'),
 ]
-
-def serve_locales(request, lang, filename):
-    """Serve locale files"""
-    locale_path = os.path.join(settings.BASE_DIR, 'trialsfinder', 'public', 'locales', lang, filename)
-    try:
-        with open(locale_path, 'r', encoding='utf-8') as f:
-            return HttpResponse(f.read(), content_type='application/json')
-    except:
-        return HttpResponse('{}', content_type='application/json')
 
 # Serve media files in development
 if settings.DEBUG:
